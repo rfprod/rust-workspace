@@ -17,14 +17,38 @@ In order to run own copy of the project one must fulfill the following requireme
 ### Supported operating systems
 
 - :trophy: [Debian based Linux](https://en.wikipedia.org/wiki/List_of_Linux_distributions#Debian-based) - `recommended`
-  - install shellcheck
+  - install global npm dependencies and shellcheck
+    ```bash
+    bash tools/shell/install.sh all
+    ```
+  - install shellcheck only
+    ```bash
+    bash tools/shell/install.sh shellcheck
+    ```
+    or
     ```bash
     sudo apt -y install shellcheck
     ```
+  - install global npm dependencies only
+    ```bash
+    bash tools/shell/install.sh global
+    ```
 - :trophy: [OSX](https://en.wikipedia.org/wiki/MacOS) - `recommended`
-  - install shellcheck
+  - install global npm dependencies and shellcheck
+    ```bash
+    bash tools/shell/install.sh all osx
+    ```
+  - install shellcheck only
+    ```bash
+    bash tools/shell/install.sh shellcheck osx
+    ```
+    or
     ```bash
     brew install shellcheck
+    ```
+  - install global npm dependencies only
+    ```bash
+    bash tools/shell/install.sh global
     ```
 - :no_entry_sign: [Windows](https://en.wikipedia.org/wiki/Microsoft_Windows) - `not recommended`
   - install shellcheck

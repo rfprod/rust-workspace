@@ -59,7 +59,7 @@ jobs:
 
       - name: Install project dependencies
         if: ${{ steps.changes.outputs.workspace == 'true' }}
-        run: cargo install --path .
+        run: cargo install --path . --force
 
       - name: Check formatting
         if: steps.changes.outputs.workspace == 'true'
@@ -81,4 +81,4 @@ jobs:
         if: steps.changes.outputs.shelltools == 'true'
         run: |
           sudo apt install shellcheck
-          shellcheck ./cargo-husky/hooks/*.sh
+          shellcheck tools/shell/*.sh tools/shell/utils/*.sh
