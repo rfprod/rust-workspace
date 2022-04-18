@@ -1,0 +1,95 @@
+# Rust workspace
+
+[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+
+## Workflows
+
+| Info                                                                               | Trigger                             | Badge                                                                                                                                                                                                       |
+| ---------------------------------------------------------------------------------- | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [:information_source:](# 'Quality gates.')                                         | PR open event (destination: trunk)  | [![pr-validation](https://github.com/rfprod/nx-ng-starter/actions/workflows/pr-validation.yml/badge.svg)](https://github.com/rfprod/nx-ng-starter/actions/workflows/pr-validation.yml)                      |
+| [:information_source:](# 'Full testing, deliverables build and deployment (TBI).') | PR merge event (destination: trunk) | [![trunk-on-push](https://github.com/rfprod/nx-ng-starter/actions/workflows/trunk-on-push.yml/badge.svg)](https://github.com/rfprod/nx-ng-starter/actions/workflows/trunk-on-push.yml)                      |
+| [:information_source:](# 'Code ownership validation.')                             | Scheduled (weekly)                  | [![codeowners-validator](https://github.com/rfprod/nx-ng-starter/actions/workflows/codeowners-validator.yml/badge.svg)](https://github.com/rfprod/nx-ng-starter/actions/workflows/codeowners-validator.yml) |
+
+## Requirements
+
+In order to run own copy of the project one must fulfill the following requirements.
+
+### Supported operating systems
+
+- :trophy: [Debian based Linux](https://en.wikipedia.org/wiki/List_of_Linux_distributions#Debian-based) - `recommended`
+  - install shellcheck
+    ```bash
+    sudo apt -y install shellcheck
+    ```
+- :trophy: [OSX](https://en.wikipedia.org/wiki/MacOS) - `recommended`
+  - install shellcheck
+    ```bash
+    brew install shellcheck
+    ```
+- :no_entry_sign: [Windows](https://en.wikipedia.org/wiki/Microsoft_Windows) - `not recommended`
+  - install shellcheck
+    ```powershell
+    iwr -useb get.scoop.sh | iex
+    scoop install shellcheck
+    ```
+  - recommended shell: [Git for Windows](https://gitforwindows.org/) > `Git BASH`
+
+### Integrated development environment
+
+[Visual Studio Code](https://code.visualstudio.com/) - recommended for all operating systems
+
+### Core dependencies
+
+- [Bash 5](https://www.gnu.org/software/bash/)
+- [Node.js](https://nodejs.org/)
+- [NPM](https://nodejs.org/)
+- [Git](https://git-scm.com/)
+- [Rust](https://www.rust-lang.org/)
+
+## Committing changes to repo
+
+Using [commitizen cli](https://github.com/commitizen/cz-cli) is mandatory.
+
+Provided all dependencies are installed, and [commitizen cli is installed as a global dependency](https://github.com/commitizen/cz-cli#conventional-commit-messages-as-a-global-utility), this command must be used.
+
+```bash
+git cz
+```
+
+## General Tooling
+
+This project was generated using [Cargo](https://doc.rust-lang.org/cargo/).
+
+<p align="center"><img src="https://doc.rust-lang.org/cargo/images/Cargo-Logo-Small.png" width="450"></p>
+
+🔎 **Cargo is the [Rust](https://www.rust-lang.org/) [package manager](https://doc.rust-lang.org/cargo/appendix/glossary.html#package-manager). Cargo downloads your Rust [package's](https://doc.rust-lang.org/cargo/appendix/glossary.html#package) dependencies, compiles your packages, makes distributable packages, and uploads them to [crates.io](https://crates.io/), the Rust community [package registry](https://doc.rust-lang.org/cargo/appendix/glossary.html#package-registry).**
+
+### Quick Start & Documentation
+
+- [The Rust language documentation](https://www.rust-lang.org/tools/install)
+
+### Further help
+
+```bash
+rustup --help
+```
+
+```bash
+cargo --help
+```
+
+## Technologies Reference
+
+### Workspace
+
+- [rustup documentation](https://rust-lang.github.io/rustup/)
+- [Rust documentation](https://doc.rust-lang.org/book/)
+- [Cargo documentation](https://doc.rust-lang.org/cargo)
+
+### CI
+
+- [GitHub Actions](https://github.com/features/actions)
+
+### Development methodology
+
+- [Trunk based development](https://trunkbaseddevelopment.com/)

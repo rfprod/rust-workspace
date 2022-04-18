@@ -1,0 +1,84 @@
+name: trunk-on-push
+
+on:
+  push:
+    branches: [main]
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: ${{ github.head_ref }}.${{ github.sha }}.trunk-on-push
+  cancel-in-progress: true
+
+jobs:
+  test-build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Detect changes
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            workspace:
+              - '.github/workflows/pr-validation.yml'
+              - 'src/**'
+              - 'Cargo.lock'
+              - 'Cargo.toml'
+            shelltools:
+              - '.cargo-husky/hooks/**'
+
+      - name: Don't save Bash session history
+        run: unset HISTFILE
+
+      - name: Get variables (rustc version, commit hash)
+        id: get-variables
+        run: echo "::set-output name=rustcversion::$(rustc --version | sed -r s/\\s/-/g | sed -r s/[\(\)]\//g)"; echo "::set-output name=commitsha::$(echo ${GITHUB_SHA})"
+
+      - name: Workspace cache
+        uses: actions/cache@v2
+        id: workspace-cache
+        env:
+          cache-name: workspace-cache
+        with:
+          path: |
+            ~/.cargo/bin
+            ./target
+          key: ${{ runner.os }}-rustc-${{ steps.get-variables.outputs.rustcversion }}-hash-${{ hashFiles('~/.cargo/bin/**') }}-workspace-${{ steps.get-variables.outputs.commitsha }}
+          restore-keys: |
+            ${{ runner.os }}-rustc-${{ steps.get-variables.outputs.rustcversion }}-hash-${{ hashFiles('~/.cargo/bin/**') }}-workspace-
+
+      - name: Install rust
+        if: ${{ steps.changes.outputs.workspace == 'true' && steps.workspace-cache.outputs.cache-hit != 'true' }}
+        run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+      - name: Install project dependencies
+        if: ${{ steps.changes.outputs.workspace == 'true' }}
+        run: cargo install --path .
+
+      - name: Check formatting
+        if: steps.changes.outputs.workspace == 'true'
+        run: cargo fmt -- --check
+
+      - name: Lint sources
+        if: steps.changes.outputs.workspace == 'true'
+        run: cargo clippy -- -D warnings
+
+      - name: Unit test
+        if: steps.changes.outputs.workspace == 'true'
+        run: cargo test
+
+      - name: Build test
+        if: steps.changes.outputs.workspace == 'true'
+        run: cargo build
+
+      - name: Lint shell
+        if: steps.changes.outputs.shelltools == 'true'
+        run: |
+          sudo apt install shellcheck
+          shellcheck ./cargo-husky/hooks/*.sh
