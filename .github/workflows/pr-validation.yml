@@ -58,7 +58,7 @@ jobs:
 
       - name: Install rust
         if: ${{ steps.changes.outputs.workspace == 'true' && steps.workspace-cache.outputs.cache-hit != 'true' }}
-        run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+        run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
       - name: Install project dependencies
         if: ${{ steps.changes.outputs.workspace == 'true' }}
