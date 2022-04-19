@@ -9,22 +9,46 @@ source tools/shell/utils/print-utils.sh ''
 printUsage() {
   printInfoTitle "<< ${0} usage >>"
   printUsageTip "bash tools/shell/install.sh" "print help"
-  printUsageTip "bash tools/shell/install.sh global" "install global npm dependencies only"
   printUsageTip "bash tools/shell/install.sh all" "install global npm dependencies, and shellcheck on linux"
   printUsageTip "bash tools/shell/install.sh all osx" "install global npm dependencies, and shellcheck on (osx)"
+  printUsageTip "bash tools/shell/install.sh global" "install global dependencies on Linux"
+  printUsageTip "bash tools/shell/install.sh global osx" "install global dependencies on OSX"
   printUsageTip "bash tools/shell/install.sh shellcheck" "install shellcheck on linux"
   printUsageTip "bash tools/shell/install.sh shellcheck osx" "install shellcheck on osx"
   printGap
 }
 
 ##
-# Installs global npm dependencies.
+# Installs global dependencies.
 ##
 installGlobalDependencies() {
-  printInfoTitle "<< Intalling global dependencies >>"
+  if [ "$1" = "osx" ]; then
+    installGlobalDependenciesLinux
+  else
+    installGlobalDependenciesOsx
+  fi
+}
+
+##
+# Installg global dependencies on Linux.
+# It is assumed that NodeJS is installed.
+##
+installGlobalDependenciesLinux() {
+  printInfoTitle "<< Intalling global NPM dependencies >>"
   printGap
 
   sudo npm install -g commitizen@latest cz-conventional-changelog@latest npm-check-updates@latest || exit 1
+}
+
+##
+# Installg global dependencies on OSX.
+# It is assumed that Python is installed.
+##
+installGlobalDependenciesOsx() {
+  printInfoTitle "<< Intalling global Python dependencies >>"
+  printGap
+
+  brew install commitizen || exit 1
 }
 
 ##
@@ -65,10 +89,10 @@ installShellcheck() {
 if [ "$1" = "?" ]; then
   printUsage
 elif [ "$1" = "all" ]; then
-  installGlobalDependencies
+  installGlobalDependencies "$2"
   installShellcheck "$2"
 elif [ "$1" = "global" ]; then
-  installGlobalDependencies
+  installGlobalDependencies "$2"
 elif [ "$1" = "shellcheck" ]; then
   installShellcheck "$2"
 else

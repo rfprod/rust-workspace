@@ -17,38 +17,22 @@ In order to run own copy of the project one must fulfill the following requireme
 ### Supported operating systems
 
 - :trophy: [Debian based Linux](https://en.wikipedia.org/wiki/List_of_Linux_distributions#Debian-based) - `recommended`
-  - install global npm dependencies and shellcheck
+  - install all global dependencies
     ```bash
     bash tools/shell/install.sh all
     ```
-  - install shellcheck only
+  - see help for available options
     ```bash
-    bash tools/shell/install.sh shellcheck
-    ```
-    or
-    ```bash
-    sudo apt -y install shellcheck
-    ```
-  - install global npm dependencies only
-    ```bash
-    bash tools/shell/install.sh global
+    bash tools/shell/install.sh ?
     ```
 - :trophy: [OSX](https://en.wikipedia.org/wiki/MacOS) - `recommended`
-  - install global npm dependencies and shellcheck
+  - install all global dependencies
     ```bash
     bash tools/shell/install.sh all osx
     ```
-  - install shellcheck only
+  - see help for available options
     ```bash
-    bash tools/shell/install.sh shellcheck osx
-    ```
-    or
-    ```bash
-    brew install shellcheck
-    ```
-  - install global npm dependencies only
-    ```bash
-    bash tools/shell/install.sh global
+    bash tools/shell/install.sh ?
     ```
 - :no_entry_sign: [Windows](https://en.wikipedia.org/wiki/Microsoft_Windows) - `not recommended`
   - install shellcheck
@@ -65,19 +49,53 @@ In order to run own copy of the project one must fulfill the following requireme
 ### Core dependencies
 
 - [Bash 5](https://www.gnu.org/software/bash/)
-- [Node.js](https://nodejs.org/)
-- [NPM](https://nodejs.org/)
+- [Python 3.6+](https://www.python.org/)
+  - `right now is required for OSX to use the global commitizen installation`
+- [NodeJS](https://nodejs.org/)
+  - `right now is required for Linux to use the global commitizen installation`
 - [Git](https://git-scm.com/)
 - [Rust](https://www.rust-lang.org/)
 
-## Committing changes to repo
+## Committing changes to the repo
 
-Using [commitizen cli](https://github.com/commitizen/cz-cli) is mandatory.
+### Linux
 
-Provided all dependencies are installed, and [commitizen cli is installed as a global dependency](https://github.com/commitizen/cz-cli#conventional-commit-messages-as-a-global-utility), this command must be used.
+Using [commitizen cli](https://github.com/commitizen/cz-cli) is highly recommended.
+
+It is assumed that [Node.js](https://nodejs.org/) is installed.
+
+Given the [NodeJS](https://nodejs.org/) is installed, and [commitizen cli is installed as a global dependency](https://github.com/commitizen/cz-cli#conventional-commit-messages-as-a-global-utility), the following command should be used to initiate the commit process
 
 ```bash
 git cz
+```
+
+Alternatively, given there are no conflicts with other projects that use [the commitizen npm package](https://www.npmjs.com/package/commitizen), one could install commitizen globally via `pypi` like This
+
+```bash
+sudo pip3 install -U Commitizen
+```
+
+### OSX
+
+Using [commitizen](https://pypi.org/project/commitizen/) is highly recommended.
+
+After installing the package as a global utility using the following command
+
+```bash
+brew install commitizen
+```
+
+one can use one of the following commands to initiate the commit process
+
+```bash
+cz commit
+```
+
+or
+
+```bash
+cz c
 ```
 
 ## General Tooling

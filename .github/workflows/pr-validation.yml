@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout sources
+      - name: Checkout sources (the PR branch)
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -55,6 +55,13 @@ jobs:
           key: ${{ runner.os }}-rustc-${{ steps.get-variables.outputs.rustcversion }}-hash-${{ hashFiles('~/.cargo/bin/**') }}-workspace-${{ steps.get-variables.outputs.commitsha }}
           restore-keys: |
             ${{ runner.os }}-rustc-${{ steps.get-variables.outputs.rustcversion }}-hash-${{ hashFiles('~/.cargo/bin/**') }}-workspace-
+
+      - name: Validate the commit messages
+        run: |
+          sudo pip3 install -U Commitizen
+          git checkout -b premerge
+          git fetch origin main:main
+          cz check --rev-range main..premerge
 
       - name: Install rust
         if: ${{ steps.changes.outputs.workspace == 'true' && steps.workspace-cache.outputs.cache-hit != 'true' }}
