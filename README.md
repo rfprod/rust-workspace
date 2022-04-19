@@ -1,5 +1,7 @@
 # Rust workspace
 
+Rust workspace with workflow automation.
+
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 
 ## Workflows
@@ -106,8 +108,11 @@ cz c
 This project was generated using [Cargo](https://doc.rust-lang.org/cargo/).
 
 <p align="center"><img src="https://doc.rust-lang.org/cargo/images/Cargo-Logo-Small.png" width="450"></p>
+<small>The Rust and Cargo logos (bitmap and vector) are owned by the Rust Foundation and distributed under the terms of the <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferer">Creative Commons Attribution license (CC-BY)</a>. The logos are used in compliance with the <a href="https://foundation.rust-lang.org/policies/logo-policy-and-media-guide/" target="_blank" rel="noreferer">Rust Foundation Logo Policy and Media Guide</a>. No changes have been made to the original logos used by <a href="https://github.com/rust-o-man" target="_blank" rel="noreferer">this organization</a>. <a href="https://github.com/rust-o-man/rust-workspace">The project</a> and <a href="https://github.com/rust-o-man" target="_blank" rel="noreferer">the organization</a> were created for educational purposes.</small>
 
-🔎 **Cargo is the [Rust](https://www.rust-lang.org/) [package manager](https://doc.rust-lang.org/cargo/appendix/glossary.html#package-manager). Cargo downloads your Rust [package's](https://doc.rust-lang.org/cargo/appendix/glossary.html#package) dependencies, compiles your packages, makes distributable packages, and uploads them to [crates.io](https://crates.io/), the Rust community [package registry](https://doc.rust-lang.org/cargo/appendix/glossary.html#package-registry).**
+### What is Cargo
+
+**Cargo is the [Rust](https://www.rust-lang.org/) [package manager](https://doc.rust-lang.org/cargo/appendix/glossary.html#package-manager). Cargo downloads your Rust [package's](https://doc.rust-lang.org/cargo/appendix/glossary.html#package) dependencies, compiles your packages, makes distributable packages, and uploads them to [crates.io](https://crates.io/), the Rust community [package registry](https://doc.rust-lang.org/cargo/appendix/glossary.html#package-registry).**
 
 ### Quick Start & Documentation
 
@@ -127,9 +132,9 @@ cargo --help
 
 ### Workspace
 
-- [rustup documentation](https://rust-lang.github.io/rustup/)
-- [Rust documentation](https://doc.rust-lang.org/book/)
-- [Cargo documentation](https://doc.rust-lang.org/cargo)
+- [rustup](https://rust-lang.github.io/rustup/)
+- [Rust](https://doc.rust-lang.org/book/)
+- [Cargo](https://doc.rust-lang.org/cargo)
 
 ### CI
 
