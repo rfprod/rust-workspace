@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout sources (the PR branch)
+      - name: Checkout sources
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -34,7 +34,7 @@ jobs:
               - 'Cargo.lock'
               - 'Cargo.toml'
             shelltools:
-              - '.cargo-husky/hooks/**'
+              - 'tools/shell/**'
 
       - name: Don't save Bash session history
         run: unset HISTFILE
@@ -68,7 +68,7 @@ jobs:
         run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
       - name: Install project dependencies
-        if: ${{ steps.changes.outputs.workspace == 'true' }}
+        if: ${{ steps.changes.outputs.workspace == 'true' && steps.workspace-cache.outputs.cache-hit != 'true' }}
         run: cargo install --path . --force
 
       - name: Check formatting

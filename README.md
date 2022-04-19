@@ -17,7 +17,7 @@ In order to run own copy of the project one must fulfill the following requireme
 ### Supported operating systems
 
 - :trophy: [Debian based Linux](https://en.wikipedia.org/wiki/List_of_Linux_distributions#Debian-based) - `recommended`
-  - install all global dependencies
+  - install all dependencies required to work with the project except NodeJS: rustup, commitizen, shellcheck
     ```bash
     bash tools/shell/install.sh all
     ```
@@ -26,7 +26,7 @@ In order to run own copy of the project one must fulfill the following requireme
     bash tools/shell/install.sh ?
     ```
 - :trophy: [OSX](https://en.wikipedia.org/wiki/MacOS) - `recommended`
-  - install all global dependencies
+  - install all dependencies required to work with the project except Python: rustup, commitizen, shellcheck
     ```bash
     bash tools/shell/install.sh all osx
     ```

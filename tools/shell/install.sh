@@ -9,43 +9,51 @@ source tools/shell/utils/print-utils.sh ''
 printUsage() {
   printInfoTitle "<< ${0} usage >>"
   printUsageTip "bash tools/shell/install.sh" "print help"
-  printUsageTip "bash tools/shell/install.sh all" "install global npm dependencies, and shellcheck on linux"
-  printUsageTip "bash tools/shell/install.sh all osx" "install global npm dependencies, and shellcheck on (osx)"
-  printUsageTip "bash tools/shell/install.sh global" "install global dependencies on Linux"
-  printUsageTip "bash tools/shell/install.sh global osx" "install global dependencies on OSX"
+  printUsageTip "bash tools/shell/install.sh all" "install rustup, commitizen, and shellcheck on linux"
+  printUsageTip "bash tools/shell/install.sh all osx" "install rustup, commitizen, and shellcheck on OSX"
+  printUsageTip "bash tools/shell/install.sh rustup" "install rustup on Linux or OSX"
+  printUsageTip "bash tools/shell/install.sh commitizen" "install commitizen on Linux"
+  printUsageTip "bash tools/shell/install.sh commitizen osx" "install commitizen on OSX"
   printUsageTip "bash tools/shell/install.sh shellcheck" "install shellcheck on linux"
-  printUsageTip "bash tools/shell/install.sh shellcheck osx" "install shellcheck on osx"
+  printUsageTip "bash tools/shell/install.sh shellcheck osx" "install shellcheck on OSX"
   printGap
+}
+
+##
+# Installs rustup.
+##
+installRustup() {
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 }
 
 ##
 # Installs global dependencies.
 ##
-installGlobalDependencies() {
+installCommitizen() {
   if [ "$1" = "osx" ]; then
-    installGlobalDependenciesLinux
+    installCommitizenLinux
   else
-    installGlobalDependenciesOsx
+    installCommitizenOsx
   fi
 }
 
 ##
-# Installg global dependencies on Linux.
+# Installs commitizen, cz-conventional-changelog, and npm-check-updates on Linux.
 # It is assumed that NodeJS is installed.
 ##
-installGlobalDependenciesLinux() {
-  printInfoTitle "<< Intalling global NPM dependencies >>"
+installCommitizenLinux() {
+  printInfoTitle "<< Intalling commitizen, cz-conventional-changelog, and npm-check-updates via NPM globaly >>"
   printGap
 
   sudo npm install -g commitizen@latest cz-conventional-changelog@latest npm-check-updates@latest || exit 1
 }
 
 ##
-# Installg global dependencies on OSX.
+# Installs commitizen on OSX.
 # It is assumed that Python is installed.
 ##
-installGlobalDependenciesOsx() {
-  printInfoTitle "<< Intalling global Python dependencies >>"
+installCommitizenOsx() {
+  printInfoTitle "<< Intalling commitizen via pypi globally >>"
   printGap
 
   brew install commitizen || exit 1
@@ -59,7 +67,6 @@ installShellcheckLinux() {
   printGap
 
   sudo apt -y install shellcheck
-
 }
 
 ##
@@ -89,10 +96,11 @@ installShellcheck() {
 if [ "$1" = "?" ]; then
   printUsage
 elif [ "$1" = "all" ]; then
-  installGlobalDependencies "$2"
+  installRustup
   installShellcheck "$2"
-elif [ "$1" = "global" ]; then
-  installGlobalDependencies "$2"
+  installCommitizen "$2"
+elif [ "$1" = "commitizen" ]; then
+  installCommitizen "$2"
 elif [ "$1" = "shellcheck" ]; then
   installShellcheck "$2"
 else
