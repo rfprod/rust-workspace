@@ -41,6 +41,7 @@ In order to run own copy of the project one must fulfill the following requireme
     scoop install shellcheck
     ```
   - recommended shell: [Git for Windows](https://gitforwindows.org/) > `Git BASH`
+  - one will have to figure out oneself how to install the `commitizen` package, the instructions for Linux will possibly work (see below)
 
 ### Integrated development environment
 
@@ -49,10 +50,8 @@ In order to run own copy of the project one must fulfill the following requireme
 ### Core dependencies
 
 - [Bash 5](https://www.gnu.org/software/bash/)
-- [Python 3.6+](https://www.python.org/)
-  - `right now is required for OSX to use the global commitizen installation`
-- [NodeJS](https://nodejs.org/)
-  - `right now is required for Linux to use the global commitizen installation`
+- [Python 3.6+](https://www.python.org/) - `right now is required for OSX to use the global commitizen installation`
+- [NodeJS](https://nodejs.org/) - `right now is required for Linux to use the global commitizen installation`
 - [Git](https://git-scm.com/)
 - [Rust](https://www.rust-lang.org/)
 
@@ -60,7 +59,9 @@ In order to run own copy of the project one must fulfill the following requireme
 
 ### Linux
 
-Using [commitizen cli](https://github.com/commitizen/cz-cli) is highly recommended.
+Using [commitizen cli](https://github.com/commitizen/cz-cli) is mandatory.
+
+The commit message are validated during the premerge checks.
 
 It is assumed that [Node.js](https://nodejs.org/) is installed.
 
@@ -70,7 +71,7 @@ Given the [NodeJS](https://nodejs.org/) is installed, and [commitizen cli is ins
 git cz
 ```
 
-Alternatively, given there are no conflicts with other projects that use [the commitizen npm package](https://www.npmjs.com/package/commitizen), one could install commitizen globally via `pypi` like This
+Alternatively, given there are no conflicts with other projects that use [the commitizen npm package](https://www.npmjs.com/package/commitizen), one could install commitizen globally via `pypi` like this
 
 ```bash
 sudo pip3 install -U Commitizen
@@ -78,7 +79,9 @@ sudo pip3 install -U Commitizen
 
 ### OSX
 
-Using [commitizen](https://pypi.org/project/commitizen/) is highly recommended.
+Using [commitizen](https://pypi.org/project/commitizen/) is mandatory.
+
+The commit message are validated during the premerge checks.
 
 After installing the package as a global utility using the following command
 
