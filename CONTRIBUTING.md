@@ -6,11 +6,11 @@
 
 Have you read the [code of conduct](CODE_OF_CONDUCT.md)?
 
-Check out the [existing issues](https://github.com/rust-o-man/rust-workspace/issues) and see what [types of contributions](#types-of-contributions) are accepted.
+Check out the [existing issues](https://github.com/rfprod/rust-workspace/issues) and see what [types of contributions](#types-of-contributions) are accepted.
 
 ### Don't see your issue? Open one
 
-If you spot something new, open an issue using a [template](https://github.com/rust-o-man/rust-workspace/issues/new/choose). We'll use the issue to have a conversation about the problem you want to fix.
+If you spot something new, open an issue using a [template](https://github.com/rfprod/rust-workspace/issues/new/choose). We'll use the issue to have a conversation about the problem you want to fix.
 
 ### Keep contributing
 
@@ -37,7 +37,7 @@ You can contribute to the repository several ways.
 
 [Issues](https://docs.github.com/en/github/managing-your-work-on-github/about-issues) are used to track tasks that contributors can help with. If an issue has no labels, we haven't reviewed it yet and you shouldn't begin work on it.
 
-If you've found something in the content or the website that should be updated, search open issues to see if someone else has reported the same thing. If it's something new, open an issue using a [template](https://github.com/rust-o-man/rust-workspace/issues/new/choose). We'll use the issue to have a conversation about the problem you want to fix.
+If you've found something in the content or the website that should be updated, search open issues to see if someone else has reported the same thing. If it's something new, open an issue using a [template](https://github.com/rfprod/rust-workspace/issues/new/choose). We'll use the issue to have a conversation about the problem you want to fix.
 
 ### :hammer_and_wrench: Pull requests
 
@@ -45,9 +45,9 @@ A [pull request](https://docs.github.com/en/github/collaborating-with-issues-and
 
 ## Starting with an issue
 
-You can browse [existing issues](https://github.com/rust-o-man/rust-workspace/issues) to find something that needs help.
+You can browse [existing issues](https://github.com/rfprod/rust-workspace/issues) to find something that needs help.
 
-If you find something that is not present in the issues section [Submit a new issue using existing templates](https://github.com/rust-o-man/rust-workspace/issues/new/choose)
+If you find something that is not present in the issues section [Submit a new issue using existing templates](https://github.com/rfprod/rust-workspace/issues/new/choose)
 
 ### :label: Labels
 
@@ -55,7 +55,7 @@ Labels can help you find an issue you'd like to help with.
 
 - The [`Help wanted` label](https://github.com/github/docs/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22) is for problems or updates that anyone in the community can start working on.
 
-Check all available labels with description [here](https://github.com/rust-o-man/rust-workspace/labels).
+Check all available labels with description [here](https://github.com/rfprod/rust-workspace/labels).
 
 ## Opening a pull request
 
@@ -81,7 +81,7 @@ When you're done making changes and you'd like to propose them for review. Read 
 
 Congratulations! The whole Intel community thanks you.
 
-Once your PR is merged, you will be listed as a contributor in the [contributor chart](https://github.com/rust-o-man/rust-workspace/graphs/contributors).
+Once your PR is merged, you will be listed as a contributor in the [contributor chart](https://github.com/rfprod/rust-workspace/graphs/contributors).
 
 ## Reviewing
 
@@ -109,4 +109,4 @@ As you update your PR and apply changes, mark each conversation as [resolved](ht
 
 ## Working in the repository
 
-To work with in the repository the following [requirements](https://github.com/rust-o-man/rust-workspace#requirements) should be fulfilled.
+To work with in the repository the following [requirements](https://github.com/rfprod/rust-workspace#requirements) should be fulfilled.
