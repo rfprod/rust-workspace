@@ -26,7 +26,7 @@ fn main() {
 }
 
 fn start_guessing(secret_number: i32, guess_arg: Option<String>) {
-    let mut guess_arg_input = if guess_arg.is_some() {
+    let mut guess_arg_input = if let Some(..) = guess_arg {
         match guess_arg.unwrap().trim().parse::<i32>() {
             Ok(value) => value.to_string(),
             Err(_) => String::new(),
