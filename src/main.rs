@@ -1,33 +1,32 @@
-use rand::{thread_rng, Rng};
 use std::{
     cmp::Ordering,
     env::{args, Args},
     io,
 };
 
+mod guessing_game;
+
 fn main() {
     let mut args: Args = args();
 
     println!("{:?}", args);
 
-    println!("Guess the number!");
+    let programs = ["Guessing game"];
 
-    println!("Please input your guess.");
+    let program_arg = args.nth(1);
 
-    let mut range = thread_rng();
+    let program_index = choose_program(programs, program_arg);
 
-    let secret_number: i32 = range.gen_range(1..101);
-
-    println!("The secret number is: {}", secret_number);
-
-    let guess_arg = args.nth(1);
-
-    start_guessing(secret_number, guess_arg);
+    match program_index {
+        0 => guessing_game::main(),
+        _ => guessing_game::main(),
+    }
 }
 
-fn start_guessing(secret_number: i32, guess_arg: Option<String>) {
-    let mut guess_arg_input = if let Some(..) = guess_arg {
-        match guess_arg.unwrap().trim().parse::<i32>() {
+// Prompts input from the user, processes it, and returns the selected program index.
+fn choose_program(programs: [&str; 1], program_arg: Option<String>) -> usize {
+    let mut program_arg_input = if let Some(..) = program_arg {
+        match program_arg.unwrap().trim().parse::<i32>() {
             Ok(value) => value.to_string(),
             Err(_) => String::new(),
         }
@@ -36,36 +35,56 @@ fn start_guessing(secret_number: i32, guess_arg: Option<String>) {
     };
 
     loop {
-        let mut guess_input = String::new();
+        let mut program_input = String::new();
 
-        if guess_arg_input.is_empty() {
+        if program_arg_input.is_empty() {
+            print_instructions(programs);
+
             io::stdin()
-                .read_line(&mut guess_input)
+                .read_line(&mut program_input)
                 .expect("Failed to read line");
         } else {
-            guess_input = guess_arg_input.to_string();
+            program_input = program_arg_input.to_string();
         }
 
-        let guess = match guess_input.trim().parse::<i32>() {
+        let program_index = match program_input.trim().parse::<usize>() {
             Ok(num) => num,
             Err(_) => continue,
         };
 
-        println!("You guessed: {}", guess);
-
-        match guess.cmp(&secret_number) {
+        match program_index.cmp(&programs.len()) {
             Ordering::Less => {
-                println!("Too small!");
-                guess_arg_input = String::new()
+                return select_program(programs, program_index);
             }
-            Ordering::Greater => {
-                println!("Too big!");
-                guess_arg_input = String::new()
-            }
-            Ordering::Equal => {
-                println!("You win!");
-                break;
-            }
+            Ordering::Greater => program_arg_input = reset_input_arg(),
+            Ordering::Equal => program_arg_input = reset_input_arg(),
         }
     }
+}
+
+// Prints the program selection instructions.
+fn print_instructions(programs: [&str; 1]) {
+    println!("Please select a program:");
+
+    let mut i = 0;
+    loop {
+        println!("{}: {}", i, programs[i]);
+        i += 1;
+        if i == programs.len() {
+            break;
+        }
+    }
+}
+
+// Resets the input argument to start over if the program does not exist.
+fn reset_input_arg() -> String {
+    println!("The program does not exist.");
+    String::new()
+}
+
+// Prints selected program and returns the program index.
+fn select_program(programs: [&str; 1], program_index: usize) -> usize {
+    let program = programs[program_index];
+    println!("You selected: {}", program);
+    program_index
 }
