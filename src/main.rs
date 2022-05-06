@@ -79,12 +79,12 @@ fn print_instructions(programs: [&str; 1]) {
 // Resets the input argument to start over if the program does not exist.
 fn reset_input_arg() -> String {
     println!("The program does not exist.");
-    return String::new();
+    String::new()
 }
 
 // Prints selected program and returns the program index.
 fn select_program(programs: [&str; 1], program_index: usize) -> usize {
     let program = programs[program_index];
     println!("You selected: {}", program);
-    return program_index;
+    program_index
 }
