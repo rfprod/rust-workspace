@@ -121,7 +121,7 @@ async fn send_weather_request(city: &str, api_key: &str) -> Result<()> {
     println!("Headers: {:#?}\n", res.headers());
 
     let body = hyper::body::aggregate(res).await?;
-    io::stdout().write_all(&body.chunk())?;
+    io::stdout().write_all(body.chunk())?;
 
     println!("\n\nDone!");
 
