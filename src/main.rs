@@ -6,10 +6,11 @@ use std::{
 
 mod guessing_game;
 
+// The main program entry point.
 fn main() {
     let mut args: Args = args();
 
-    println!("{:?}", args);
+    println!("\n{:?}", args);
 
     let programs = ["Guessing game"];
 
@@ -64,16 +65,16 @@ fn choose_program(programs: [&str; 1], program_arg: Option<String>) -> usize {
 
 // Prints the program selection instructions.
 fn print_instructions(programs: [&str; 1]) {
-    println!("Please select a program:");
+    println!("\nAvailable programs:");
 
+    let max_i = programs.len() - 1;
     let mut i = 0;
-    loop {
+    while i <= max_i {
         println!("{}: {}", i, programs[i]);
         i += 1;
-        if i == programs.len() {
-            break;
-        }
     }
+
+    println!("\nPlease select a program, [0-{}]:", max_i);
 }
 
 // Resets the input argument to start over if the program does not exist.
