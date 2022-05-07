@@ -9,13 +9,16 @@ use std::{
 pub fn main() {
     let mut args: Args = args();
 
-    println!("{:?}", args);
+    println!("\n{:?}", args);
 
-    println!("Guess the number!");
+    let range_min = 1;
+    let range_max = 101;
+
+    println!("\nGuess the number between {} and {}", range_min, range_max);
 
     let mut range = thread_rng();
 
-    let secret_number: i32 = range.gen_range(1..101);
+    let secret_number: i32 = range.gen_range(range_min..range_max);
 
     println!("The secret number is: {}", secret_number);
 
@@ -39,7 +42,7 @@ fn start_guessing(secret_number: i32, guess_arg: Option<String>) {
         let mut guess_input = String::new();
 
         if guess_arg_input.is_empty() {
-            println!("Please input your guess:");
+            println!("\nPlease input your guess:");
 
             io::stdin()
                 .read_line(&mut guess_input)
@@ -53,21 +56,40 @@ fn start_guessing(secret_number: i32, guess_arg: Option<String>) {
             Err(_) => continue,
         };
 
-        println!("You guessed: {}", guess);
+        println!("\nYou guessed: {}", guess);
 
         match guess.cmp(&secret_number) {
             Ordering::Less => {
                 println!("Too small!");
-                guess_arg_input = String::new()
+                precision(guess, secret_number);
+                guess_arg_input = String::new();
             }
             Ordering::Greater => {
                 println!("Too big!");
-                guess_arg_input = String::new()
+                precision(guess, secret_number);
+                guess_arg_input = String::new();
             }
             Ordering::Equal => {
                 println!("You win!");
                 break;
             }
         }
+    }
+}
+
+// Prints how far or close the guess is.
+fn precision(guess: i32, secret_number: i32) {
+    let far_threshold = 10;
+    let closer_threshold = far_threshold / 2;
+    let closest_threshold = closer_threshold / 2;
+    let absolute_difference = (secret_number - guess).abs();
+    if absolute_difference < closest_threshold {
+        println!("The guess is in the closest range.")
+    } else if absolute_difference < closer_threshold {
+        println!("The guess is closer.")
+    } else if absolute_difference < far_threshold {
+        println!("The guess is far.")
+    } else {
+        println!("The guess is too far.")
     }
 }

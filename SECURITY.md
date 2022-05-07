@@ -2,7 +2,11 @@
 
 ## Dependencies audit
 
-From time to time it's reasonable to audit dependencies for security issues and fix found issues.
+From time to time it's reasonable to update dependencies. Use the following command
+
+```bash
+cargo update
+```
 
 ### Automated (CI)
 
