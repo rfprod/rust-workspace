@@ -1,9 +1,9 @@
+use colored::Colorize;
+use hyper::{body::Buf, Client, Uri};
 use std::{
     env::{args, Args},
     io::{self, Write},
 };
-
-use hyper::{body::Buf, Client, Uri};
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
@@ -11,9 +11,12 @@ type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>
 pub fn main() {
     let mut args: Args = args();
 
-    println!("\n{:?}", args);
+    println!("\n{}:\n{:?}", "Arguments".cyan(), args);
 
-    println!("\nCurrent weather by city name using OpenWeather API.");
+    println!(
+        "\n{}",
+        "Current weather by city name using OpenWeather API.".cyan()
+    );
 
     let city_arg = args.nth(2);
 
@@ -48,7 +51,7 @@ fn get_weather(city_arg: Option<String>, api_key_arg: Option<String>) {
 
     loop {
         if city_arg_input.trim().is_empty() && city_input.trim().is_empty() {
-            println!("\nPlease input a city:");
+            println!("\n{}", "Please input a city:".yellow());
 
             io::stdin()
                 .read_line(&mut city_input)
@@ -60,7 +63,7 @@ fn get_weather(city_arg: Option<String>, api_key_arg: Option<String>) {
         let mut city = "";
 
         if api_key_arg_input.trim().is_empty() && api_key_input.trim().is_empty() {
-            println!("\nPlease input an API key (to get one for free, sign up here -> https://openweathermap.org/home/sign_up):");
+            println!("\n{}", "Please input an API key (to get one for free, sign up here -> https://openweathermap.org/home/sign_up):".yellow());
 
             io::stdin()
                 .read_line(&mut api_key_input)
@@ -93,7 +96,7 @@ fn get_weather(city_arg: Option<String>, api_key_arg: Option<String>) {
                 let result = send_weather_request(city, api_key).await;
                 match result {
                     Ok(data) => data,
-                    Err(error) => println!("\nThere was an error: {:?}", error),
+                    Err(error) => println!("\n{}: {:?}", "There was an error".red(), error),
                 };
             });
             break;
@@ -117,13 +120,13 @@ async fn send_weather_request(city: &str, api_key: &str) -> Result<()> {
 
     let res = client.get(uri).await?;
 
-    println!("Response: {}", res.status());
-    println!("Headers: {:#?}\n", res.headers());
+    println!("{}: {}", "Response".green(), res.status());
+    println!("{}: {:#?}\n", "Headers".green(), res.headers());
 
     let body = hyper::body::aggregate(res).await?;
     io::stdout().write_all(body.chunk())?;
 
-    println!("\n\nDone!");
+    println!("\n\n{}", "Done!".green());
 
     Ok(())
 }
