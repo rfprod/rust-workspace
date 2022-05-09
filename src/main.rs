@@ -1,3 +1,4 @@
+use colored::Colorize;
 use std::{
     cmp::Ordering,
     env::{args, Args},
@@ -6,14 +7,17 @@ use std::{
 
 mod guessing_game;
 mod open_weather;
+mod system_information;
+
+type Programs<'a> = [&'a str; 3];
 
 // The main program entry point.
 fn main() {
     let mut args: Args = args();
 
-    println!("\n{:?}", args);
+    println!("\n{}:\n{:?}", "Arguments".cyan(), args);
 
-    let programs = ["Guessing game", "Open Weather"];
+    let programs: Programs = ["Guessing game", "Open Weather", "System information"];
 
     let program_arg = args.nth(1);
 
@@ -22,12 +26,13 @@ fn main() {
     match program_index {
         0 => guessing_game::main(),
         1 => open_weather::main(),
+        2 => system_information::main(),
         _ => guessing_game::main(),
     }
 }
 
 // Prompts input from the user, processes it, and returns the selected program index.
-fn choose_program(programs: [&str; 2], program_arg: Option<String>) -> usize {
+fn choose_program(programs: Programs, program_arg: Option<String>) -> usize {
     let mut program_arg_input = if let Some(..) = program_arg {
         match program_arg.unwrap().trim().parse::<i32>() {
             Ok(value) => value.to_string(),
@@ -66,8 +71,8 @@ fn choose_program(programs: [&str; 2], program_arg: Option<String>) -> usize {
 }
 
 // Prints the program selection instructions.
-fn print_instructions(programs: [&str; 2]) {
-    println!("\nAvailable programs:");
+fn print_instructions(programs: Programs) {
+    println!("\n{}", "Available programs:".cyan());
 
     let max_i = programs.len() - 1;
     let mut i = 0;
@@ -76,17 +81,17 @@ fn print_instructions(programs: [&str; 2]) {
         i += 1;
     }
 
-    println!("\nPlease select a program, [0-{}]:", max_i);
+    println!("\n{}, [0-{}]:", "Please select a program".yellow(), max_i);
 }
 
 // Resets the input argument to start over if the program does not exist.
 fn reset_input_arg() -> String {
-    println!("The program does not exist.");
+    println!("\n{}", "The subprogram does not exist.".red());
     String::new()
 }
 
 // Prints selected program and returns the program index.
-fn select_program(programs: [&str; 2], program_index: usize) -> usize {
+fn select_program(programs: Programs, program_index: usize) -> usize {
     let program = programs[program_index];
     println!("You selected: {}", program);
     program_index

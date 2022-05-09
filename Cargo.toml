@@ -1,6 +1,6 @@
 [package]
 name = "rust-workspace"
-version = "0.5.0"
+version = "0.6.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -9,6 +9,8 @@ edition = "2021"
 rand = "0.8.5"
 hyper = { version = "0.14", features = ["full"] }
 tokio = { version = "1.18.1", features = ["full"] }
+sysinfo = "0.18.0"
+colored = "2.0.0"
 
 [dev-dependencies]
 
