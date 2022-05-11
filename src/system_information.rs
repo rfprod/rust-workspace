@@ -14,7 +14,10 @@ pub fn main() {
 
     println!("\n{}:\n{:?}", "Arguments".cyan(), args);
 
-    println!("\n{}", "Print system information.".blue());
+    println!(
+        "\n{}",
+        "Print information about the operating system.".blue()
+    );
 
     let subprogram_arg = args.nth(2);
 

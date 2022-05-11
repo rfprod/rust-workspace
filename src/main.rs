@@ -5,11 +5,12 @@ use std::{
     io,
 };
 
+mod calculator;
 mod guessing_game;
 mod open_weather;
 mod system_information;
 
-type Programs<'a> = [&'a str; 3];
+type Programs<'a> = [&'a str; 4];
 
 // The main program entry point.
 fn main() {
@@ -17,7 +18,12 @@ fn main() {
 
     println!("\n{}:\n{:?}", "Arguments".cyan(), args);
 
-    let programs: Programs = ["Guessing game", "Open Weather", "System information"];
+    let programs: Programs = [
+        "Guessing game",
+        "Open Weather",
+        "System information",
+        "Calculator",
+    ];
 
     let program_arg = args.nth(1);
 
@@ -27,6 +33,7 @@ fn main() {
         0 => guessing_game::main(),
         1 => open_weather::main(),
         2 => system_information::main(),
+        3 => calculator::main(),
         _ => guessing_game::main(),
     }
 }
