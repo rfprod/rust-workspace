@@ -28,8 +28,8 @@ pub fn main() {
 // Process arguments and send a request for weather data.
 fn get_weather(city_arg: Option<String>, api_key_arg: Option<String>) {
     let mut city_arg_input = if let Some(..) = city_arg {
-        match city_arg.unwrap().trim().parse::<i32>() {
-            Ok(value) => value.to_string(),
+        match city_arg.unwrap().trim().parse::<String>() {
+            Ok(value) => value,
             Err(_) => String::new(),
         }
     } else {
@@ -37,8 +37,8 @@ fn get_weather(city_arg: Option<String>, api_key_arg: Option<String>) {
     };
 
     let mut api_key_arg_input = if let Some(..) = api_key_arg {
-        match api_key_arg.unwrap().trim().parse::<i32>() {
-            Ok(value) => value.to_string(),
+        match api_key_arg.unwrap().trim().parse::<String>() {
+            Ok(value) => value,
             Err(_) => String::new(),
         }
     } else {
