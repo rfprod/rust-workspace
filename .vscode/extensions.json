@@ -4,7 +4,7 @@
     "johnpapa.vscode-peacock",
     "sadesyllas.vscode-workspace-switcher",
     "editorconfig.editorconfig",
-    "matklad.rust-analyzer",
+    "rust-lang.rust-analyzer",
     "mikestead.dotenv",
     "shd101wyy.markdown-preview-enhanced",
     "foxundermoon.shell-format",
