@@ -44,7 +44,7 @@ jobs:
         run: echo "::set-output name=rustcversion::$(rustc --version | sed -r s/\\s/-/g | sed -r s/[\(\)]\//g)"; echo "::set-output name=commitsha::$(echo ${GITHUB_SHA})"
 
       - name: Workspace cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: workspace-cache
         env:
           cache-name: workspace-cache
