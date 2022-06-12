@@ -17,7 +17,7 @@ struct Calculator;
 impl Calculator {
     // Creates a new calculator.
     fn new() -> Calculator {
-        return Calculator;
+        Calculator
     }
 
     // Initializes the calculator.
@@ -35,9 +35,7 @@ impl Calculator {
 
         println!("\n{}:\n{:?}", "Arguments".cyan(), args);
 
-        let expression_arg = args.nth(2);
-
-        expression_arg
+        args.nth(2)
     }
 
     // The calculator program expresion parsing and evaluation logic.

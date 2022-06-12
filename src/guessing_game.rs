@@ -18,7 +18,7 @@ struct GuessingGame;
 impl GuessingGame {
     // Creates a new guessing game.
     fn new() -> GuessingGame {
-        return GuessingGame;
+        GuessingGame
     }
 
     // Initializes the guessing game.
@@ -38,9 +38,7 @@ impl GuessingGame {
 
         println!("\n{}:\n{:?}", "Arguments".cyan(), args);
 
-        let guess_arg = args.nth(2);
-
-        guess_arg
+        args.nth(2)
     }
 
     // Generates a secret number.
