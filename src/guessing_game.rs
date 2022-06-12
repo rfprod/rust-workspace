@@ -40,7 +40,7 @@ impl GuessingGame {
 
         let guess_arg = args.nth(2);
 
-        return guess_arg;
+        guess_arg
     }
 
     // Generates a secret number.
@@ -61,7 +61,7 @@ impl GuessingGame {
 
         println!("{}: {}", "The secret number is".cyan(), secret_number);
 
-        return secret_number;
+        secret_number
     }
 
     // The main logic of the guessing game.

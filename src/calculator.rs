@@ -37,7 +37,7 @@ impl Calculator {
 
         let expression_arg = args.nth(2);
 
-        return expression_arg;
+        expression_arg
     }
 
     // The calculator program expresion parsing and evaluation logic.
