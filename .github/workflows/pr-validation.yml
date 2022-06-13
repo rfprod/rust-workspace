@@ -36,25 +36,12 @@ jobs:
             shelltools:
               - 'tools/shell/**'
 
-      - name: Don't save Bash session history
-        run: unset HISTFILE
-
-      - name: Get variables (rustc version, commit hash)
-        id: get-variables
-        run: echo "::set-output name=rustcversion::$(rustc --version | sed -r s/\\s/-/g | sed -r s/[\(\)]\//g)"; echo "::set-output name=commitsha::$(echo ${GITHUB_SHA})"
+      - name: Disable session history
+        uses: ./.github/actions/disable-session-history
 
       - name: Workspace cache
-        uses: actions/cache@v3
         id: workspace-cache
-        env:
-          cache-name: workspace-cache
-        with:
-          path: |
-            ~/.cargo/bin
-            ./target
-          key: ${{ runner.os }}-rustc-${{ steps.get-variables.outputs.rustcversion }}-hash-${{ hashFiles('~/.cargo/bin/**') }}-workspace-${{ steps.get-variables.outputs.commitsha }}
-          restore-keys: |
-            ${{ runner.os }}-rustc-${{ steps.get-variables.outputs.rustcversion }}-hash-${{ hashFiles('~/.cargo/bin/**') }}-workspace-
+        uses: ./.github/actions/workspace-cache
 
       - name: Validate the commit messages
         run: |
@@ -64,31 +51,31 @@ jobs:
           cz check --rev-range main..premerge
 
       - name: Install rust
-        if: ${{ steps.changes.outputs.workspace == 'true' && steps.workspace-cache.outputs.cache-hit != 'true' }}
+        if: ${{ steps.changes.outputs.workspace == 'true' }}
         run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
       - name: Install project dependencies
-        if: ${{ steps.changes.outputs.workspace == 'true' && steps.workspace-cache.outputs.cache-hit != 'true' }}
+        if: ${{ steps.changes.outputs.workspace == 'true' }}
         run: cargo install --path . --force
 
       - name: Check formatting
-        if: steps.changes.outputs.workspace == 'true'
+        if: ${{ steps.changes.outputs.workspace == 'true' }}
         run: cargo fmt -- --check
 
       - name: Lint sources
-        if: steps.changes.outputs.workspace == 'true'
+        if: ${{ steps.changes.outputs.workspace == 'true' }}
         run: cargo clippy -- -D warnings
 
       - name: Unit test
-        if: steps.changes.outputs.workspace == 'true'
+        if: ${{ steps.changes.outputs.workspace == 'true' }}
         run: cargo test
 
       - name: Build test
-        if: steps.changes.outputs.workspace == 'true'
+        if: ${{ steps.changes.outputs.workspace == 'true' }}
         run: cargo build
 
       - name: Lint shell
-        if: steps.changes.outputs.shelltools == 'true'
+        if: ${{ steps.changes.outputs.workspace == 'true' }}
         run: |
           sudo apt install shellcheck
           shellcheck tools/shell/*.sh tools/shell/utils/*.sh
