@@ -42,12 +42,10 @@ impl OpenWeather {
 
         println!("\n{}:\n{:?}", "Arguments".cyan(), args);
 
-        let arguments = InuputArguments {
+        InuputArguments {
             city_arg: args.nth(2),
             api_key_arg: args.nth(3),
-        };
-
-        arguments
+        }
     }
 
     // Processes the input arguments and send a request to get weather data.
