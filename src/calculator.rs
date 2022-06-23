@@ -7,8 +7,7 @@ use std::{
 
 // The program entry point.
 pub fn main() {
-    let mut calculator = Calculator::new();
-    calculator.init();
+    Calculator::new();
 }
 
 struct Calculator;
@@ -17,7 +16,9 @@ struct Calculator;
 impl Calculator {
     // Creates a new calculator.
     fn new() -> Calculator {
-        Calculator
+        let mut program = Calculator;
+        program.init();
+        program
     }
 
     // Initializes the calculator.

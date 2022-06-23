@@ -11,10 +11,10 @@
     "editor.defaultFormatter": "foxundermoon.shell-format"
   },
   "[rust]": {
-    "editor.defaultFormatter": "matklad.rust-analyzer"
+    "editor.defaultFormatter": "rust-lang.rust-analyzer"
   },
   "[rs]": {
-    "editor.defaultFormatter": "matklad.rust-analyzer"
+    "editor.defaultFormatter": "rust-lang.rust-analyzer"
   },
   "[ignore]": {
     "editor.defaultFormatter": "foxundermoon.shell-format"

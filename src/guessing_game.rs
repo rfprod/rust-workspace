@@ -8,8 +8,7 @@ use std::{
 
 // The program entry point.
 pub fn main() {
-    let mut game = GuessingGame::new();
-    game.init();
+    GuessingGame::new();
 }
 
 struct GuessingGame;
@@ -18,7 +17,9 @@ struct GuessingGame;
 impl GuessingGame {
     // Creates a new guessing game.
     fn new() -> GuessingGame {
-        GuessingGame
+        let mut program = GuessingGame;
+        program.init();
+        program
     }
 
     // Initializes the guessing game.
