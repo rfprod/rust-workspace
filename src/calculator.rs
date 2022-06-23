@@ -77,6 +77,8 @@ impl Calculator {
             let result = eval_str(expression.as_str()).unwrap();
 
             println!("\n{}: {}", "Result".green(), result);
+
+            expression_arg_input = String::new();
         }
     }
 }
