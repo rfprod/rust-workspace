@@ -132,10 +132,19 @@ impl SystemInformation {
     // Print information about the system.
     fn print_system_information(&mut self, system: System) -> System {
         println!("\n{}", "System information:".green());
-        println!("System name:           {:?}", system.get_name());
-        println!("System kernel version: {:?}", system.get_kernel_version());
-        println!("System OS version:     {:?}", system.get_os_version());
-        println!("System host name:      {:?}", system.get_host_name());
+        println!("System name:           {:?}", system.get_name().unwrap());
+        println!(
+            "System kernel version: {:?}",
+            system.get_kernel_version().unwrap()
+        );
+        println!(
+            "System OS version:     {:?}",
+            system.get_os_version().unwrap()
+        );
+        println!(
+            "System host name:      {:?}",
+            system.get_host_name().unwrap()
+        );
         system
     }
 
@@ -143,7 +152,12 @@ impl SystemInformation {
     fn print_processes(&mut self, system: System) -> System {
         println!("\n{}", "System processes:".green());
         for (pid, proc_) in system.get_processes() {
-            println!("{}:{} => status: {:?}", pid, proc_.name(), proc_.status());
+            println!(
+                "{}:{} => status: {:?}",
+                pid,
+                proc_.name(),
+                proc_.status().as_str()
+            );
         }
         system
     }
