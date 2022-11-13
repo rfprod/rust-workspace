@@ -6,11 +6,11 @@ Rust workspace with workflow automation.
 
 ## Workflows
 
-| Info                                                                               | Trigger                             | Badge                                                                                                                                                                                                         |
-| ---------------------------------------------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [:information_source:](# 'Quality gates.')                                         | PR open event (destination: trunk)  | [![pr-validation](https://github.com/rfprod/rust-workspace/actions/workflows/pr-validation.yml/badge.svg)](https://github.com/rfprod/rust-workspace/actions/workflows/pr-validation.yml)                      |
-| [:information_source:](# 'Full testing, deliverables build and deployment (TBI).') | PR merge event (destination: trunk) | [![trunk-on-push](https://github.com/rfprod/rust-workspace/actions/workflows/trunk-on-push.yml/badge.svg)](https://github.com/rfprod/rust-workspace/actions/workflows/trunk-on-push.yml)                      |
-| [:information_source:](# 'Code ownership validation.')                             | Scheduled (weekly)                  | [![codeowners-validator](https://github.com/rfprod/rust-workspace/actions/workflows/codeowners-validator.yml/badge.svg)](https://github.com/rfprod/rust-workspace/actions/workflows/codeowners-validator.yml) |
+|                                                                              | Trigger                             | Badge                                                                                                                                                                                                      |
+| ---------------------------------------------------------------------------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [:information_source:](# 'Full testing, deliverables build and deployment.') | PR merge event (destination: trunk) | [![trunk](https://github.com/rfprod/rust-workspace/actions/workflows/trunk.yml/badge.svg)](https://github.com/rfprod/rust-workspace/actions/workflows/trunk.yml)                                           |
+| [:information_source:](# 'Code ownership validation.')                       | Scheduled (weekly)                  | [![validate-codeowners](https://github.com/rfprod/rust-workspace/actions/workflows/validate-codeowners.yml/badge.svg)](https://github.com/rfprod/rust-workspace/actions/workflows/validate-codeowners.yml) |
+| [:information_source:](# 'Quality gates: pull request validation.')          | PR open event (destination: trunk)  | [![validate-pr](https://github.com/rfprod/rust-workspace/actions/workflows/validate-pr.yml/badge.svg)](https://github.com/rfprod/rust-workspace/actions/workflows/validate-pr.yml)                         |
 
 ## Requirements
 

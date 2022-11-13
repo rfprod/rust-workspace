@@ -1,7 +1,7 @@
-name: pr-validation
+name: trunk
 
 on:
-  pull_request:
+  push:
     branches: [main]
 
 defaults:
@@ -9,19 +9,16 @@ defaults:
     shell: bash
 
 concurrency:
-  group: ${{ github.head_ref }}.${{ github.sha }}.pr-validation
+  group: ${{ github.ref_name }}.${{ github.sha }}.trunk
   cancel-in-progress: true
 
 jobs:
-  premerge:
+  test-build-deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Detect changes
         uses: dorny/paths-filter@v2
@@ -29,7 +26,7 @@ jobs:
         with:
           filters: |
             workspace:
-              - '.github/workflows/trunk-on-push.yml'
+              - '.github/workflows/pr-validation.yml'
               - 'src/**'
               - 'Cargo.lock'
               - 'Cargo.toml'
@@ -42,13 +39,6 @@ jobs:
       - name: Workspace cache
         id: workspace-cache
         uses: ./.github/actions/workspace-cache
-
-      - name: Validate the commit messages
-        run: |
-          sudo pip3 install -U Commitizen
-          git checkout -b premerge
-          git fetch origin main:main
-          cz check --rev-range main..premerge
 
       - name: Install rust
         if: ${{ steps.changes.outputs.workspace == 'true' }}
