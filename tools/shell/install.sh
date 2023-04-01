@@ -1,5 +1,6 @@
 #!/bin/bash
 
+source tools/shell/utils/config.sh
 source tools/shell/utils/colors.sh ''
 source tools/shell/utils/print-utils.sh ''
 
