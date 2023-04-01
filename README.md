@@ -18,7 +18,7 @@ In order to run own copy of the project one must fulfill the following requireme
 
 ### Supported operating systems
 
-- :trophy: [Debian based Linux](https://en.wikipedia.org/wiki/List_of_Linux_distributions#Debian-based) - `recommended`
+- :trophy: [Debian based Linux](https://en.wikipedia.org/wiki/List_of_Linux_distributions#Debian-based)
   - install all dependencies required to work with the project except NodeJS: rustup, commitizen, shellcheck
     ```bash
     bash tools/shell/install.sh all
@@ -27,7 +27,7 @@ In order to run own copy of the project one must fulfill the following requireme
     ```bash
     bash tools/shell/install.sh ?
     ```
-- :trophy: [OSX](https://en.wikipedia.org/wiki/MacOS) - `recommended`
+- :ok: [OSX](https://en.wikipedia.org/wiki/MacOS)
   - install all dependencies required to work with the project except Python: rustup, commitizen, shellcheck
     ```bash
     bash tools/shell/install.sh all osx
@@ -36,24 +36,29 @@ In order to run own copy of the project one must fulfill the following requireme
     ```bash
     bash tools/shell/install.sh ?
     ```
-- :no_entry_sign: [Windows](https://en.wikipedia.org/wiki/Microsoft_Windows) - `not recommended`
+- 🤷 [Windows](https://en.wikipedia.org/wiki/Microsoft_Windows)
   - install shellcheck
     ```powershell
     iwr -useb get.scoop.sh | iex
     scoop install shellcheck
     ```
   - recommended shell: [Git for Windows](https://gitforwindows.org/) > `Git BASH`
+  - configure Git to use LF as a carriage return
+    ```bash
+    git config --global core.autocrlf false
+    git config --global core.eol lf
+    ```
   - one will have to figure out oneself how to install the `commitizen` package, the instructions for Linux will possibly work (see below)
 
 ### Integrated development environment
 
-[Visual Studio Code](https://code.visualstudio.com/) - recommended for all operating systems
+:trophy: [Visual Studio Code](https://code.visualstudio.com/) - recommended for all operating systems
 
 ### Core dependencies
 
 - [Bash 5](https://www.gnu.org/software/bash/)
-- [Python 3.6+](https://www.python.org/) - `right now is required for OSX to use the global commitizen installation`
-- [NodeJS](https://nodejs.org/) - `right now is required for Linux to use the global commitizen installation`
+- [Python 3.6+](https://www.python.org/) - `for OSX to use the global commitizen installation`
+- [NodeJS](https://nodejs.org/) - `for Linux to use the global commitizen installation`
 - [Git](https://git-scm.com/)
 - [Rust](https://www.rust-lang.org/)
 
@@ -128,7 +133,7 @@ rustup --help
 cargo --help
 ```
 
-## Technologies Reference
+## Technology Reference
 
 ### Workspace
 
