@@ -13,8 +13,8 @@ pub fn main() {
 }
 
 struct InuputArguments {
-    city_arg: Option<String>,
-    api_key_arg: Option<String>,
+    city: Option<String>,
+    api_key: Option<String>,
 }
 
 struct OpenWeather;
@@ -29,27 +29,27 @@ impl OpenWeather {
 
     // Initializes the open weather program.
     fn init(&mut self) {
-        println!("\n{}", "Open weather initialized.".blue());
+        println!("\n{}", "Open weather initialized.".blue().bold());
 
-        let arguments = self.get_args();
+        let args = self.args();
 
-        self.get_weather(arguments.city_arg, arguments.api_key_arg);
+        self.weather(args.city, args.api_key);
     }
 
     // Parses the input arguments.
-    fn get_args(&mut self) -> InuputArguments {
+    fn args(&mut self) -> InuputArguments {
         let mut args: Args = args();
 
-        println!("\n{}:\n{:?}", "Arguments".cyan(), args);
+        println!("\n{}:\n{:?}", "Arguments".cyan().bold(), args);
 
         InuputArguments {
-            city_arg: args.nth(2),
-            api_key_arg: args.nth(3),
+            city: args.nth(2),
+            api_key: args.nth(3),
         }
     }
 
     // Processes the input arguments and send a request to get weather data.
-    fn get_weather(&mut self, city_arg: Option<String>, api_key_arg: Option<String>) {
+    fn weather(&mut self, city_arg: Option<String>, api_key_arg: Option<String>) {
         println!(
             "\n{}",
             "Current weather by city name using OpenWeather API.".cyan()
@@ -79,7 +79,7 @@ impl OpenWeather {
 
         loop {
             if city_arg_input.trim().is_empty() && city_input.trim().is_empty() {
-                println!("\n{}", "Please input a city:".yellow());
+                println!("\n{}", "Please input a city:".yellow().bold());
 
                 io::stdin()
                     .read_line(&mut city_input)
@@ -121,7 +121,7 @@ impl OpenWeather {
                     .unwrap();
 
                 runtime.block_on(async {
-                    let result = self.send_weather_request(city, api_key).await;
+                    let result = self.weather_request(city, api_key).await;
                     match result {
                         Ok(data) => data,
                         Err(error) => println!("\n{}: {:?}", "There was an error".red(), error),
@@ -133,7 +133,7 @@ impl OpenWeather {
     }
 
     // Weather data request logic.
-    async fn send_weather_request(&mut self, city: &str, api_key: &str) -> Result<()> {
+    async fn weather_request(&mut self, city: &str, api_key: &str) -> Result<()> {
         let client = Client::new();
 
         let mut uri_with_params = String::from("http://api.openweathermap.org/data/2.5/weather");
@@ -154,7 +154,7 @@ impl OpenWeather {
         let body = hyper::body::aggregate(res).await?;
         io::stdout().write_all(body.chunk())?;
 
-        println!("\n\n{}", "Done!".green());
+        println!("\n\n{}", "Done!".green().bold());
 
         Ok(())
     }

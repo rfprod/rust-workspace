@@ -10,6 +10,10 @@ pub fn main() {
     Calculator::new();
 }
 
+struct InuputArguments {
+    expression: Option<String>,
+}
+
 struct Calculator;
 
 // The calculator implementation.
@@ -23,20 +27,22 @@ impl Calculator {
 
     // Initializes the calculator.
     fn init(&mut self) {
-        println!("\n{}", "Calculator initialized.".blue());
+        println!("\n{}", "Calculator initialized.".blue().bold());
 
-        let expression_arg = self.get_expression_arg();
+        let args = self.args();
 
-        self.calculate(expression_arg);
+        self.calculate(args.expression);
     }
 
     // Parses the user expression.
-    fn get_expression_arg(&mut self) -> Option<String> {
+    fn args(&mut self) -> InuputArguments {
         let mut args: Args = args();
 
-        println!("\n{}:\n{:?}", "Arguments".cyan(), args);
+        println!("\n{}:\n{:?}", "Arguments".cyan().bold(), args);
 
-        args.nth(2)
+        InuputArguments {
+            expression: args.nth(2),
+        }
     }
 
     // The calculator program expresion parsing and evaluation logic.
@@ -56,7 +62,7 @@ impl Calculator {
             if expression_arg_input.trim().is_empty() && expression_input.trim().is_empty() {
                 println!(
                     "\n{}",
-                    "Please input an expression without spaces:".yellow()
+                    "Please input an expression without spaces:".yellow().bold()
                 );
 
                 io::stdin()
@@ -77,7 +83,7 @@ impl Calculator {
 
             let result = eval_str(expression.as_str()).unwrap();
 
-            println!("\n{}: {}", "Result".green(), result);
+            println!("\n{}: {}", "Result".green().bold(), result);
 
             expression_arg_input = String::new();
         }

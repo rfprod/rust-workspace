@@ -7,22 +7,24 @@ use std::{
 
 mod calculator;
 mod guessing_game;
+mod linfa_train;
 mod open_weather;
 mod system_information;
 
-type Programs<'a> = [&'a str; 4];
+type Programs<'a> = [&'a str; 5];
 
 // The main program entry point.
 fn main() {
     let mut args: Args = args();
 
-    println!("\n{}:\n{:?}", "Arguments".cyan(), args);
+    println!("\n{}:\n{:?}", "Arguments".cyan().bold(), args);
 
     let programs: Programs = [
         "Guessing game",
         "Open Weather",
         "System information",
         "Calculator",
+        "Linfa train",
     ];
 
     let program_arg = args.nth(1);
@@ -34,6 +36,7 @@ fn main() {
         1 => open_weather::main(),
         2 => system_information::main(),
         3 => calculator::main(),
+        4 => linfa_train::main(),
         _ => guessing_game::main(),
     }
 }
@@ -79,7 +82,7 @@ fn choose_program(programs: Programs, program_arg: Option<String>) -> usize {
 
 // Prints the program selection instructions.
 fn print_instructions(programs: Programs) {
-    println!("\n{}", "Available programs:".cyan());
+    println!("\n{}", "Available programs:".yellow().bold());
 
     let max_i = programs.len() - 1;
     let mut i = 0;
@@ -88,7 +91,11 @@ fn print_instructions(programs: Programs) {
         i += 1;
     }
 
-    println!("\n{}, [0-{}]:", "Please select a program".yellow(), max_i);
+    println!(
+        "\n{}, [0-{}]:",
+        "Please select a program".yellow().bold(),
+        max_i
+    );
 }
 
 // Resets the input argument to start over if the program does not exist.

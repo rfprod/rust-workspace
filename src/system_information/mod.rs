@@ -13,6 +13,10 @@ pub fn main() {
     SystemInformation::new();
 }
 
+struct InuputArguments {
+    subprogram: Option<String>,
+}
+
 struct SystemInformation;
 
 impl SystemInformation {
@@ -25,11 +29,11 @@ impl SystemInformation {
 
     // Initializes the system information program.
     fn init(&mut self) {
-        println!("\n{}", "System information initialized.".blue());
+        println!("\n{}", "System information initialized.".blue().bold());
 
-        let subprogram_arg = self.get_subprogram_arg();
+        let args = self.args();
 
-        let subprogram_index = self.choose_subprogram(subprogram_arg);
+        let subprogram_index = self.choose_subprogram(args.subprogram);
 
         let mut system = sysinfo::System::new_all();
         system.refresh_all();
@@ -46,12 +50,14 @@ impl SystemInformation {
     }
 
     // Parses the input arguments.
-    fn get_subprogram_arg(&mut self) -> Option<String> {
+    fn args(&mut self) -> InuputArguments {
         let mut args: Args = args();
 
-        println!("\n{}:\n{:?}", "Arguments".cyan(), args);
+        println!("\n{}:\n{:?}", "Arguments".cyan().bold(), args);
 
-        args.nth(2)
+        InuputArguments {
+            subprogram: args.nth(2),
+        }
     }
 
     // Prompts input from the user, processes it, and returns the selected subprogram index.
@@ -104,7 +110,7 @@ impl SystemInformation {
 
     // Prints the subprogram selection instructions.
     fn print_instructions(&mut self, subprograms: Subprograms) {
-        println!("\n{}", "Available subprograms:".cyan());
+        println!("\n{}", "Available subprograms:".yellow().bold());
 
         let max_i = subprograms.len() - 1;
         let mut i = 0;
@@ -113,7 +119,11 @@ impl SystemInformation {
             i += 1;
         }
 
-        println!("\n{}, [0-{}]:", "Please select a subprogram".cyan(), max_i);
+        println!(
+            "\n{}, [0-{}]:",
+            "Please select a subprogram".yellow().bold(),
+            max_i
+        );
     }
 
     // Resets the input argument to start over if the program does not exist.
