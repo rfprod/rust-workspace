@@ -13,6 +13,15 @@
 .settings/
 *.sublime-workspace
 
+# Data directories
+.data/*
+!.data/input
+.data/input/*
+!.data/input/.gitkeep
+!.data/output
+.data/output/*
+!.data/output/.gitkeep
+
 # IDE - VSCode
 .vscode/*
 !.vscode/settings.json

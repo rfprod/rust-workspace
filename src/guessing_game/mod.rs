@@ -11,6 +11,10 @@ pub fn main() {
     GuessingGame::new();
 }
 
+struct InuputArguments {
+    guess: Option<String>,
+}
+
 struct GuessingGame;
 
 // The guessing game implementation.
@@ -24,22 +28,22 @@ impl GuessingGame {
 
     // Initializes the guessing game.
     fn init(&mut self) {
-        println!("\n{}", "Guessing game initialized.".blue());
+        println!("\n{}", "Guessing game initialized.".blue().bold());
 
         let secret_number: i32 = self.generate_secret();
 
-        let guess_arg = self.get_guess_arg();
+        let args = self.args();
 
-        self.start_guessing(secret_number, guess_arg);
+        self.start_guessing(secret_number, args.guess);
     }
 
     // Parses the user guess.
-    fn get_guess_arg(&mut self) -> Option<String> {
+    fn args(&mut self) -> InuputArguments {
         let mut args: Args = args();
 
-        println!("\n{}:\n{:?}", "Arguments".cyan(), args);
+        println!("\n{}:\n{:?}", "Arguments".cyan().bold(), args);
 
-        args.nth(2)
+        InuputArguments { guess: args.nth(2) }
     }
 
     // Generates a secret number.
@@ -78,7 +82,7 @@ impl GuessingGame {
             let mut guess_input = String::new();
 
             if guess_arg_input.is_empty() {
-                println!("\n{}", "Please input your guess:".yellow());
+                println!("\n{}", "Please input your guess:".yellow().bold());
 
                 io::stdin()
                     .read_line(&mut guess_input)
@@ -106,7 +110,7 @@ impl GuessingGame {
                     guess_arg_input = String::new();
                 }
                 Ordering::Equal => {
-                    println!("{}", "You win!".green());
+                    println!("{}", "You win!".green().bold());
                     break;
                 }
             }
