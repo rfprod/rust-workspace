@@ -11,6 +11,7 @@
     "timonwong.shellcheck",
     "esbenp.prettier-vscode",
     "tomoyukim.vscode-mermaid-editor",
-    "redhat.vscode-yaml"
+    "redhat.vscode-yaml",
+    "Iterative.dvc"
   ]
 }

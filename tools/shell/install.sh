@@ -93,6 +93,7 @@ installShellcheck() {
   else
     installShellcheckLinux
   fi
+  shellcheck --version
 }
 
 ##
@@ -126,6 +127,7 @@ installDvc() {
   else
     installDvcLinux
   fi
+  dvc version
 }
 
 ##
