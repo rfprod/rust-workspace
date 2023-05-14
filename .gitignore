@@ -18,9 +18,11 @@
 !.data/input
 .data/input/*
 !.data/input/.gitkeep
+!.data/input/*.dvc
 !.data/output
 .data/output/*
 !.data/output/.gitkeep
+!.data/output/*.dvc
 
 # IDE - VSCode
 .vscode/*
