@@ -55,7 +55,8 @@ impl OpenWeather {
             "Current weather by city name using OpenWeather API.".cyan()
         );
 
-        let mut city_arg_input = if let Some(..) = city_arg {
+        let city_is_some = city_arg.is_some();
+        let mut city_arg_input = if city_is_some {
             match city_arg.unwrap().trim().parse::<String>() {
                 Ok(value) => value,
                 Err(_) => String::new(),
@@ -64,7 +65,8 @@ impl OpenWeather {
             String::new()
         };
 
-        let mut api_key_arg_input = if let Some(..) = api_key_arg {
+        let api_key_is_some = api_key_arg.is_some();
+        let mut api_key_arg_input = if api_key_is_some {
             match api_key_arg.unwrap().trim().parse::<String>() {
                 Ok(value) => value,
                 Err(_) => String::new(),

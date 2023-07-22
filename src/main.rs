@@ -43,7 +43,8 @@ fn main() {
 
 // Prompts input from the user, processes it, and returns the selected program index.
 fn choose_program(programs: Programs, program_arg: Option<String>) -> usize {
-    let mut program_arg_input = if let Some(..) = program_arg {
+    let is_some = program_arg.is_some();
+    let mut program_arg_input = if is_some {
         match program_arg.unwrap().trim().parse::<i32>() {
             Ok(value) => value.to_string(),
             Err(_) => String::new(),

@@ -47,7 +47,8 @@ impl Calculator {
 
     // The calculator program expresion parsing and evaluation logic.
     fn calculate(&mut self, expression_arg: Option<String>) {
-        let mut expression_arg_input = if let Some(..) = expression_arg {
+        let is_some = expression_arg.is_some();
+        let mut expression_arg_input = if is_some {
             match expression_arg.unwrap().trim().parse::<String>() {
                 Ok(value) => value,
                 Err(_) => String::new(),

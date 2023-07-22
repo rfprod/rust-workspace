@@ -62,7 +62,8 @@ impl SystemInformation {
 
     // Prompts input from the user, processes it, and returns the selected subprogram index.
     fn choose_subprogram(&mut self, subprogram_arg: Option<String>) -> usize {
-        let mut subprogram_arg_input = if let Some(..) = subprogram_arg {
+        let is_some = subprogram_arg.is_some();
+        let mut subprogram_arg_input = if is_some {
             match subprogram_arg.unwrap().trim().parse::<i32>() {
                 Ok(value) => value.to_string(),
                 Err(_) => String::new(),
