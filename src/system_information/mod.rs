@@ -163,11 +163,14 @@ impl SystemInformation {
     fn print_processes(&mut self, system: System) -> System {
         println!("\n{}", "System processes:".green());
         for (pid, proc_) in system.get_processes() {
+            let double_indent = "\t\t";
+            let indent = "\t";
             println!(
-                "{}:{} => status: {:?}",
+                "STATUS {}\t|\tPID {}{}|\tNAME {:?}",
+                proc_.status().as_str(),
                 pid,
+                if pid.lt(&999) { double_indent } else { indent },
                 proc_.name(),
-                proc_.status().as_str()
             );
         }
         system
