@@ -5,7 +5,7 @@ use std::{
     io,
 };
 
-// The program entry point.
+/// The program entry point.
 pub fn main() {
     Calculator::new();
 }
@@ -16,16 +16,16 @@ struct InuputArguments {
 
 struct Calculator;
 
-// The calculator implementation.
+/// The calculator implementation.
 impl Calculator {
-    // Creates a new calculator.
+    /// Creates a new calculator.
     fn new() -> Calculator {
         let mut program = Calculator;
         program.init();
         program
     }
 
-    // Initializes the calculator.
+    /// Initializes the calculator.
     fn init(&mut self) {
         println!("\n{}", "Calculator initialized.".blue().bold());
 
@@ -34,7 +34,7 @@ impl Calculator {
         self.calculate(args.expression);
     }
 
-    // Parses the user expression.
+    /// Parses the user expression.
     fn args(&mut self) -> InuputArguments {
         let mut args: Args = args();
 
@@ -45,7 +45,7 @@ impl Calculator {
         }
     }
 
-    // The calculator program expresion parsing and evaluation logic.
+    /// The calculator program expresion parsing and evaluation logic.
     fn calculate(&mut self, expression_arg: Option<String>) {
         let is_some = expression_arg.is_some();
         let mut expression_arg_input = if is_some {

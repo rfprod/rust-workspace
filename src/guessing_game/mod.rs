@@ -6,27 +6,28 @@ use std::{
     io,
 };
 
-// The program entry point.
+/// The program entry point.
 pub fn main() {
     GuessingGame::new();
 }
 
+/// The input arguments of the program.
 struct InuputArguments {
     guess: Option<String>,
 }
 
 struct GuessingGame;
 
-// The guessing game implementation.
+/// The guessing game implementation.
 impl GuessingGame {
-    // Creates a new guessing game.
+    /// Creates a new guessing game.
     fn new() -> GuessingGame {
         let mut program = GuessingGame;
         program.init();
         program
     }
 
-    // Initializes the guessing game.
+    /// Initializes the guessing game.
     fn init(&mut self) {
         println!("\n{}", "Guessing game initialized.".blue().bold());
 
@@ -37,7 +38,7 @@ impl GuessingGame {
         self.start_guessing(secret_number, args.guess);
     }
 
-    // Parses the user guess.
+    /// Parses the user guess.
     fn args(&mut self) -> InuputArguments {
         let mut args: Args = args();
 
@@ -46,7 +47,7 @@ impl GuessingGame {
         InuputArguments { guess: args.nth(2) }
     }
 
-    // Generates a secret number.
+    /// Generates a secret number.
     fn generate_secret(&mut self) -> i32 {
         let range_min = 1;
         let range_max = 101;
@@ -67,7 +68,7 @@ impl GuessingGame {
         secret_number
     }
 
-    // The main logic of the guessing game.
+    /// The main logic of the guessing game.
     fn start_guessing(&mut self, secret_number: i32, guess_arg: Option<String>) {
         let is_some = guess_arg.is_some();
         let mut guess_arg_input = if is_some {
@@ -118,7 +119,7 @@ impl GuessingGame {
         }
     }
 
-    // Prints how far or close the user guess is.
+    /// Prints how far or close the user guess is.
     fn precision(&mut self, guess: i32, secret_number: i32) {
         let far_threshold = 10;
         let closer_threshold = far_threshold / 2;
