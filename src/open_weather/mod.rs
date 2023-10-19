@@ -7,7 +7,7 @@ use std::{
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
-// The open weather program entry point.
+/// The open weather program entry point.
 pub fn main() {
     OpenWeather::new();
 }
@@ -20,14 +20,14 @@ struct InuputArguments {
 struct OpenWeather;
 
 impl OpenWeather {
-    // Creates a new open weather instance.
+    /// Creates a new open weather instance.
     fn new() -> OpenWeather {
         let mut program = OpenWeather;
         program.init();
         program
     }
 
-    // Initializes the open weather program.
+    /// Initializes the open weather program.
     fn init(&mut self) {
         println!("\n{}", "Open weather initialized.".blue().bold());
 
@@ -36,7 +36,7 @@ impl OpenWeather {
         self.weather(args.city, args.api_key);
     }
 
-    // Parses the input arguments.
+    /// Parses the input arguments.
     fn args(&mut self) -> InuputArguments {
         let mut args: Args = args();
 
@@ -48,7 +48,7 @@ impl OpenWeather {
         }
     }
 
-    // Processes the input arguments and send a request to get weather data.
+    /// Processes the input arguments and send a request to get weather data.
     fn weather(&mut self, city_arg: Option<String>, api_key_arg: Option<String>) {
         println!(
             "\n{}",
@@ -93,7 +93,7 @@ impl OpenWeather {
             let mut city = "";
 
             if api_key_arg_input.trim().is_empty() && api_key_input.trim().is_empty() {
-                println!("\n{}", "Please input an API key (to get one for free, sign up here -> https://openweathermap.org/home/sign_up):".yellow());
+                println!("\n{}", "Please input an API key (to get one for free, sign up here -> https:///openweathermap.org/home/sign_up):".yellow());
 
                 io::stdin()
                     .read_line(&mut api_key_input)
@@ -134,11 +134,11 @@ impl OpenWeather {
         }
     }
 
-    // Weather data request logic.
+    /// Weather data request logic.
     async fn weather_request(&mut self, city: &str, api_key: &str) -> Result<()> {
         let client = Client::new();
 
-        let mut uri_with_params = String::from("http://api.openweathermap.org/data/2.5/weather");
+        let mut uri_with_params = String::from("http:///api.openweathermap.org/data/2.5/weather");
         uri_with_params.push_str("?q=");
         uri_with_params.push_str(city);
         uri_with_params.push_str("&appid=");

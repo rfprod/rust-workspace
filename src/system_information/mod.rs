@@ -8,7 +8,7 @@ use sysinfo::{ProcessExt, System, SystemExt};
 
 type Subprograms<'a> = [&'a str; 6];
 
-// The system information program entry point.
+/// The system information program entry point.
 pub fn main() {
     SystemInformation::new();
 }
@@ -20,14 +20,14 @@ struct InuputArguments {
 struct SystemInformation;
 
 impl SystemInformation {
-    // Creates a new system information instance.
+    /// Creates a new system information instance.
     fn new() -> SystemInformation {
         let mut program = SystemInformation;
         program.init();
         program
     }
 
-    // Initializes the system information program.
+    /// Initializes the system information program.
     fn init(&mut self) {
         println!("\n{}", "System information initialized.".blue().bold());
 
@@ -49,7 +49,7 @@ impl SystemInformation {
         };
     }
 
-    // Parses the input arguments.
+    /// Parses the input arguments.
     fn args(&mut self) -> InuputArguments {
         let mut args: Args = args();
 
@@ -60,7 +60,7 @@ impl SystemInformation {
         }
     }
 
-    // Prompts input from the user, processes it, and returns the selected subprogram index.
+    /// Prompts input from the user, processes it, and returns the selected subprogram index.
     fn choose_subprogram(&mut self, subprogram_arg: Option<String>) -> usize {
         let is_some = subprogram_arg.is_some();
         let mut subprogram_arg_input = if is_some {
@@ -109,7 +109,7 @@ impl SystemInformation {
         }
     }
 
-    // Prints the subprogram selection instructions.
+    /// Prints the subprogram selection instructions.
     fn print_instructions(&mut self, subprograms: Subprograms) {
         println!("\n{}", "Available subprograms:".yellow().bold());
 
@@ -127,20 +127,20 @@ impl SystemInformation {
         );
     }
 
-    // Resets the input argument to start over if the program does not exist.
+    /// Resets the input argument to start over if the program does not exist.
     fn reset_input_arg(&mut self) -> String {
         println!("\n{}", "The subprogram does not exist.".red());
         String::new()
     }
 
-    // Prints selected subprogram and returns the program index.
+    /// Prints selected subprogram and returns the program index.
     fn select_subprogram(&mut self, subprograms: Subprograms, subprogram_index: usize) -> usize {
         let subprogram = subprograms[subprogram_index];
         println!("You selected: {}", subprogram);
         subprogram_index
     }
 
-    // Print information about the system.
+    /// Print information about the system.
     fn print_system_information(&mut self, system: System) -> System {
         println!("\n{}", "System information:".green());
         println!("System name:           {:?}", system.get_name().unwrap());
@@ -159,7 +159,7 @@ impl SystemInformation {
         system
     }
 
-    // Print the system processes information.
+    /// Print the system processes information.
     fn print_processes(&mut self, system: System) -> System {
         println!("\n{}", "System processes:".green());
         for (pid, proc_) in system.get_processes() {
@@ -176,7 +176,7 @@ impl SystemInformation {
         system
     }
 
-    // Print the temperature of the components.
+    /// Print the temperature of the components.
     fn print_components_temperature(&mut self, system: System) -> System {
         println!("\n{}", "Components temperature:".green());
         for component in system.get_components() {
@@ -185,7 +185,7 @@ impl SystemInformation {
         system
     }
 
-    // Print the disks information.
+    /// Print the disks information.
     fn print_disks_info(&mut self, system: System) -> System {
         println!("\n{}", "Disks information:".green());
         for disk in system.get_disks() {
@@ -194,7 +194,7 @@ impl SystemInformation {
         system
     }
 
-    // Print the RAM and SWAP information.
+    /// Print the RAM and SWAP information.
     fn print_memory_information(&mut self, system: System) -> System {
         println!("\n{}", "Memory information:".green());
         println!("Total memory: {} KB", system.get_total_memory());
@@ -204,7 +204,7 @@ impl SystemInformation {
         system
     }
 
-    // Print all information about the system.
+    /// Print all information about the system.
     fn print_all_information(&mut self, system: System) -> System {
         let mut sys = system;
         sys = self.print_system_information(sys);

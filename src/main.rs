@@ -6,14 +6,15 @@ use std::{
 };
 
 mod calculator;
+mod data_pipeline;
 mod guessing_game;
 mod linfa_train;
 mod open_weather;
 mod system_information;
 
-type Programs<'a> = [&'a str; 5];
+type Programs<'a> = [&'a str; 6];
 
-// The main program entry point.
+/// The main program entry point.
 fn main() {
     let mut args: Args = args();
 
@@ -25,6 +26,7 @@ fn main() {
         "System information",
         "Calculator",
         "Linfa train",
+        "Data pipeline",
     ];
 
     let program_arg = args.nth(1);
@@ -37,11 +39,12 @@ fn main() {
         2 => system_information::main(),
         3 => calculator::main(),
         4 => linfa_train::main(),
+        5 => data_pipeline::main(),
         _ => guessing_game::main(),
     }
 }
 
-// Prompts input from the user, processes it, and returns the selected program index.
+/// Prompts input from the user, processes it, and returns the selected program index.
 fn choose_program(programs: Programs, program_arg: Option<String>) -> usize {
     let is_some = program_arg.is_some();
     let mut program_arg_input = if is_some {
@@ -81,7 +84,7 @@ fn choose_program(programs: Programs, program_arg: Option<String>) -> usize {
     }
 }
 
-// Prints the program selection instructions.
+/// Prints the program selection instructions.
 fn print_instructions(programs: Programs) {
     println!("\n{}", "Available programs:".yellow().bold());
 
@@ -99,13 +102,13 @@ fn print_instructions(programs: Programs) {
     );
 }
 
-// Resets the input argument to start over if the program does not exist.
+/// Resets the input argument to start over if the program does not exist.
 fn reset_input_arg() -> String {
     println!("\n{}", "The subprogram does not exist.".red());
     String::new()
 }
 
-// Prints selected program and returns the program index.
+/// Prints selected program and returns the program index.
 fn select_program(programs: Programs, program_index: usize) -> usize {
     let program = programs[program_index];
     println!("You selected: {}", program);

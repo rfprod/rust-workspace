@@ -24,16 +24,16 @@ struct InuputArguments {
 
 struct LinfaTrain;
 
-// Source: https://github.com/DataPsycho/data-pipelines-in-rust/blob/main/diabetes_ml_pipeline/Cargo.toml
+/// Source: https:///github.com/DataPsycho/data-pipelines-in-rust/blob/main/diabetes_ml_pipeline/Cargo.toml
 impl LinfaTrain {
-    // Creates a new linfa train instance.
+    /// Creates a new linfa train instance.
     fn new() -> LinfaTrain {
         let mut program = LinfaTrain;
         program.init();
         program
     }
 
-    // Initializes the linfa train program.
+    /// Initializes the linfa train program.
     fn init(&mut self) {
         println!("\n{}", "Linfa train initialized.".blue().bold());
 
@@ -43,7 +43,7 @@ impl LinfaTrain {
         self.load_model();
     }
 
-    // Parses the input arguments.
+    /// Parses the input arguments.
     fn args(&mut self) -> InuputArguments {
         let mut args: Args = args();
 
@@ -59,7 +59,7 @@ impl LinfaTrain {
         InuputArguments { max_iterations }
     }
 
-    // The dataset headers
+    /// The dataset headers
     fn headers(&mut self, reader: &mut Reader<File>) -> Vec<String> {
         let result = reader
             .headers()
@@ -71,7 +71,7 @@ impl LinfaTrain {
         result
     }
 
-    // The dataset data
+    /// The dataset data
     fn data(&mut self, reader: &mut Reader<File>) -> Vec<Vec<f32>> {
         let result = reader
             .records()
@@ -90,7 +90,7 @@ impl LinfaTrain {
         result
     }
 
-    // The dataset records
+    /// The dataset records
     fn records(&mut self, data: &Vec<Vec<f32>>, target_index: usize) -> Array2<f32> {
         let mut records: Vec<f32> = vec![];
         for record in data.iter() {
@@ -110,7 +110,7 @@ impl LinfaTrain {
         result
     }
 
-    // The dataset targets
+    /// The dataset targets
     fn targets(&mut self, data: &[Vec<f32>], target_index: usize) -> Array1<i32> {
         let targets = data
             .iter()
@@ -124,8 +124,9 @@ impl LinfaTrain {
         Array::from(targets)
     }
 
-    // The dataset
-    // Data source: https://github.com/plotly/datasets/blob/master/diabetes.csv
+    /// The dataset
+    ///
+    /// Data source: https:///github.com/plotly/datasets/blob/master/diabetes.csv
     fn dataset(&mut self) -> Dataset<f32, i32, ndarray::Dim<[usize; 1]>> {
         let file_path = ".data/input/diabetes.csv";
         let mut reader = Reader::from_path(file_path).unwrap();
@@ -138,7 +139,7 @@ impl LinfaTrain {
         Dataset::new(records, targets).with_feature_names(features)
     }
 
-    // Trains the model
+    /// Trains the model
     fn train(&mut self, max_iterations: u64) {
         println!("\n{}", "Training the model...".yellow().bold());
         let dataset = self.dataset();
@@ -161,7 +162,7 @@ impl LinfaTrain {
         println!("\n{} {:?}", "Model saved, path:".yellow(), output.as_path());
     }
 
-    // Loads the model
+    /// Loads the model
     fn load_model(&mut self) {
         println!("\n{}", "Testing the model...".yellow().bold());
         let dataset = self.dataset();
