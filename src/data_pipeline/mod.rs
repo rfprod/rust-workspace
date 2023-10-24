@@ -142,7 +142,6 @@ impl DataPipeline {
                             total,
                             retry: false,
                         }
-                        // result
                     }
                 };
             });
@@ -159,6 +158,7 @@ impl DataPipeline {
                 continue;
             } else {
                 println!("\n{}", "Download complete".green().bold());
+                self.create_artifact();
                 break;
             }
         }
@@ -346,5 +346,61 @@ impl DataPipeline {
             result.push(line.to_string())
         }
         result
+    }
+
+    fn create_artifact(&self) {
+        println!("\n{}", "Creating the artifact...".cyan().bold());
+        let cwd = env::current_dir().unwrap();
+        println!(
+            "\n{}:\n{:?}",
+            "The current directory is".cyan().bold(),
+            cwd.display()
+        );
+        let base_path = cwd.display().to_string() + "/.data/artifact/github/";
+        let create_dir_result = fs::create_dir_all(&base_path);
+        if let Ok(_tmp) = create_dir_result {
+            let source_path = cwd.display().to_string() + "/.data/output/github";
+            let output_path = base_path + "/github-repos.tar.gz";
+
+            Command::new("tar")
+                .args(["-czf", &output_path, &source_path])
+                .output()
+                .expect("Failed to create artifact");
+
+            println!(
+                "\n{}:\n{:?}",
+                "Created the archive".green().bold(),
+                output_path
+            );
+
+            let gpg_passphrase_env = env::var("GPG_PASSPHRASE");
+            let gpg_passphrase = match gpg_passphrase_env.unwrap().trim().parse::<String>() {
+                Ok(value) => value,
+                Err(_) => String::new(),
+            };
+
+            let encrypted_artifact_path = output_path.to_owned() + ".gpg";
+            Command::new("gpg")
+                .args([
+                    "--batch",
+                    "--yes",
+                    "--passphrase",
+                    &gpg_passphrase,
+                    "--symmetric",
+                    "--cipher-algo",
+                    "aes256",
+                    "--output",
+                    &encrypted_artifact_path,
+                    &output_path,
+                ])
+                .output()
+                .expect("Failed to encrypt artifact");
+
+            println!(
+                "\n{}:\n{:?}",
+                "Encrypted the archive".green().bold(),
+                encrypted_artifact_path
+            );
+        }
     }
 }
