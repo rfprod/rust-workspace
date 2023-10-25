@@ -6,6 +6,7 @@ use octorust::{
     Client,
 };
 use std::{
+    cmp::Ordering,
     collections::HashMap,
     env::{self, args, Args},
     fs::{self, File},
@@ -22,6 +23,7 @@ pub fn main() {
 
 /// The input arguments of the program.
 struct InuputArguments {
+    context: Option<String>,
     search_term: Option<String>,
 }
 
@@ -30,6 +32,8 @@ struct FetchResult {
     total: i64,
     retry: bool,
 }
+
+type Contexts<'a> = [&'a str; 2];
 
 struct DataPipeline;
 
@@ -48,9 +52,24 @@ impl DataPipeline {
 
         let _result = self.load_env_vars();
 
+        let contexts: Contexts = ["Create artifact", "Restore artifact"];
+
         let args = self.args();
 
-        self.execute(args.search_term);
+        let context_index = self.choose_context(contexts, args.context);
+
+        match context_index {
+            0 => self.execute(args.search_term),
+            1 => self.restore_from_artifact(),
+            _ => {
+                println!(
+                    "\n{}",
+                    "Nothing to execute. The context is not supported"
+                        .red()
+                        .bold()
+                )
+            }
+        }
     }
 
     /// Parses the data pipeline search_term.
@@ -60,8 +79,80 @@ impl DataPipeline {
         println!("\n{}:\n{:?}", "Arguments".cyan().bold(), args);
 
         InuputArguments {
-            search_term: args.nth(2),
+            context: args.nth(2),
+            search_term: args.nth(3),
         }
+    }
+
+    /// Prompts input from the user, processes it, and returns the selected context index.
+    fn choose_context(&self, contexts: Contexts, context_arg: Option<String>) -> usize {
+        let is_some = context_arg.is_some();
+        let mut context_arg_input = if is_some {
+            match context_arg.unwrap().trim().parse::<i32>() {
+                Ok(value) => value.to_string(),
+                Err(_) => String::new(),
+            }
+        } else {
+            String::new()
+        };
+
+        loop {
+            let mut context_input = String::new();
+
+            if context_arg_input.is_empty() {
+                self.print_context_instructions(contexts);
+
+                io::stdin()
+                    .read_line(&mut context_input)
+                    .expect("Failed to read line");
+            } else {
+                context_input = context_arg_input.to_string();
+            }
+
+            let context_index = match context_input.trim().parse::<usize>() {
+                Ok(num) => num,
+                Err(_) => continue,
+            };
+
+            match context_index.cmp(&contexts.len()) {
+                Ordering::Less => {
+                    return self.select_context(contexts, context_index);
+                }
+                Ordering::Greater => context_arg_input = self.reset_input_arg(),
+                Ordering::Equal => context_arg_input = self.reset_input_arg(),
+            }
+        }
+    }
+
+    /// Prints the context selection instructions.
+    fn print_context_instructions(&self, contexts: Contexts) {
+        println!("\n{}", "Available contexts:".yellow().bold());
+
+        let max_i = contexts.len() - 1;
+        let mut i = 0;
+        while i <= max_i {
+            println!("{}: {}", i, contexts[i]);
+            i += 1;
+        }
+
+        println!(
+            "\n{}, [0-{}]:",
+            "Please select a context".yellow().bold(),
+            max_i
+        );
+    }
+
+    /// Prints selected context and returns the context index.
+    fn select_context(&self, contexts: Contexts, context_index: usize) -> usize {
+        let context = contexts[context_index];
+        println!("You selected: {}", context);
+        context_index
+    }
+
+    /// Resets the input argument to start over if the program does not exist.
+    fn reset_input_arg(&self) -> String {
+        println!("\n{}", "The subprogram does not exist.".red());
+        String::new()
     }
 
     /// The data pipeline program for the provided search_term.
@@ -348,6 +439,7 @@ impl DataPipeline {
         result
     }
 
+    /// Create an encrypted archive containing downloaded artifacts.
     fn create_artifact(&self) {
         println!("\n{}", "Creating the artifact...".cyan().bold());
         let cwd = env::current_dir().unwrap();
@@ -359,13 +451,13 @@ impl DataPipeline {
         let base_path = cwd.display().to_string() + "/.data/artifact/github/";
         let create_dir_result = fs::create_dir_all(&base_path);
         if let Ok(_tmp) = create_dir_result {
-            let source_path = cwd.display().to_string() + "/.data/output/github";
+            let source_path = "./.data/output/github";
             let output_path = base_path + "/github-repos.tar.gz";
 
             Command::new("tar")
                 .args(["-czf", &output_path, &source_path])
                 .output()
-                .expect("Failed to create artifact");
+                .expect("Failed to create the artifact");
 
             println!(
                 "\n{}:\n{:?}",
@@ -394,7 +486,7 @@ impl DataPipeline {
                     &output_path,
                 ])
                 .output()
-                .expect("Failed to encrypt artifact");
+                .expect("Failed to encrypt the artifact");
 
             println!(
                 "\n{}:\n{:?}",
@@ -402,5 +494,57 @@ impl DataPipeline {
                 encrypted_artifact_path
             );
         }
+    }
+
+    fn restore_from_artifact(&self) {
+        println!("\n{}", "Restoring data from the artifact...".cyan().bold());
+        let cwd = env::current_dir().unwrap();
+        println!(
+            "\n{}:\n{:?}",
+            "The current directory is".cyan().bold(),
+            cwd.display()
+        );
+        let base_path = cwd.display().to_string() + "/.data/artifact/github/";
+        let artifact_path = base_path.to_owned() + "github-repos.tar.gz";
+        let encrypted_artifact_path = base_path.to_owned() + "github-repos.tar.gz.gpg";
+
+        let gpg_passphrase_env = env::var("GPG_PASSPHRASE");
+        let gpg_passphrase = match gpg_passphrase_env.unwrap().trim().parse::<String>() {
+            Ok(value) => value,
+            Err(_) => String::new(),
+        };
+
+        Command::new("gpg")
+            .args([
+                "--batch",
+                "--yes",
+                "--passphrase",
+                &gpg_passphrase,
+                "--decrypt",
+                "--output",
+                &artifact_path,
+                &encrypted_artifact_path,
+            ])
+            .output()
+            .expect("Failed to decrypt the artifact");
+
+        println!(
+            "\n{}:\n{:?}",
+            "Decrypted the archive".green().bold(),
+            encrypted_artifact_path
+        );
+
+        let output_path = "./";
+
+        Command::new("tar")
+            .args(["-xzf", &artifact_path, &output_path])
+            .output()
+            .expect("Failed to unpack the artifact");
+
+        println!(
+            "\n{}:\n{:?}",
+            "Unpacked the archive".green().bold(),
+            artifact_path
+        );
     }
 }
