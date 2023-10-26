@@ -5,18 +5,18 @@ use std::{
     io,
 };
 
-/// The program entry point.
+/// The entry point of the program.
 pub fn main() {
     Calculator::new();
 }
 
+/// Input arguments of the program.
 struct InuputArguments {
     expression: Option<String>,
 }
 
 struct Calculator;
 
-/// The calculator implementation.
 impl Calculator {
     /// Creates a new calculator.
     fn new() -> Calculator {

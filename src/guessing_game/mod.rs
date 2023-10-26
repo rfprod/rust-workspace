@@ -6,19 +6,18 @@ use std::{
     io,
 };
 
-/// The program entry point.
+/// The entry point of the program.
 pub fn main() {
     GuessingGame::new();
 }
 
-/// The input arguments of the program.
+/// Input arguments of the program.
 struct InuputArguments {
     guess: Option<String>,
 }
 
 struct GuessingGame;
 
-/// The guessing game implementation.
 impl GuessingGame {
     /// Creates a new guessing game.
     fn new() -> GuessingGame {

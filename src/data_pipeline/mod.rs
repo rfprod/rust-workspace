@@ -14,30 +14,33 @@ use std::{
     process::Command,
 };
 
+mod artifact;
+
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
-/// The program entry point.
+/// The entry point of the program.
 pub fn main() {
     DataPipeline::new();
 }
 
-/// The input arguments of the program.
+/// Input arguments of the program.
 struct InuputArguments {
     context: Option<String>,
     search_term: Option<String>,
 }
 
+/// GitHub repos fetch result.
 struct FetchResult {
     items: Vec<RepoSearchResultItem>,
     total: i64,
     retry: bool,
 }
 
+/// Supported contextx.
 type Contexts<'a> = [&'a str; 2];
 
 struct DataPipeline;
 
-/// The data pipeline implementation.
 impl DataPipeline {
     /// Creates a new data pipeline.
     fn new() -> DataPipeline {
@@ -56,11 +59,15 @@ impl DataPipeline {
 
         let args = self.args();
 
-        let context_index = self.choose_context(contexts, args.context);
+        let context_arg = args.context.to_owned();
+
+        let context_index = self.choose_context(contexts, context_arg);
+
+        let context = contexts[context_index];
 
         match context_index {
-            0 => self.execute(args.search_term),
-            1 => self.restore_from_artifact(),
+            0 => self.execute(args.search_term, context.to_owned()),
+            1 => artifact::main(args.context),
             _ => {
                 println!(
                     "\n{}",
@@ -72,7 +79,7 @@ impl DataPipeline {
         }
     }
 
-    /// Parses the data pipeline search_term.
+    /// Parses the data pipeline arguments.
     fn args(&mut self) -> InuputArguments {
         let mut args: Args = args();
 
@@ -84,12 +91,12 @@ impl DataPipeline {
         }
     }
 
-    /// Prompts input from the user, processes it, and returns the selected context index.
+    /// Prompts input from the user, processes it, and returns the index of the selected context.
     fn choose_context(&self, contexts: Contexts, context_arg: Option<String>) -> usize {
         let is_some = context_arg.is_some();
         let mut context_arg_input = if is_some {
-            match context_arg.unwrap().trim().parse::<i32>() {
-                Ok(value) => value.to_string(),
+            match context_arg.unwrap().trim().parse::<String>() {
+                Ok(value) => value,
                 Err(_) => String::new(),
             }
         } else {
@@ -156,7 +163,7 @@ impl DataPipeline {
     }
 
     /// The data pipeline program for the provided search_term.
-    fn execute(&mut self, search_term_arg: Option<String>) {
+    fn execute(&mut self, search_term_arg: Option<String>, context: String) {
         let is_some = search_term_arg.is_some();
         let search_term_arg_input = if is_some {
             match search_term_arg.unwrap().trim().parse::<String>() {
@@ -249,7 +256,8 @@ impl DataPipeline {
                 continue;
             } else {
                 println!("\n{}", "Download complete".green().bold());
-                self.create_artifact();
+                // self.create_artifact();
+                artifact::main(Some(context));
                 break;
             }
         }
@@ -437,114 +445,5 @@ impl DataPipeline {
             result.push(line.to_string())
         }
         result
-    }
-
-    /// Create an encrypted archive containing downloaded artifacts.
-    fn create_artifact(&self) {
-        println!("\n{}", "Creating the artifact...".cyan().bold());
-        let cwd = env::current_dir().unwrap();
-        println!(
-            "\n{}:\n{:?}",
-            "The current directory is".cyan().bold(),
-            cwd.display()
-        );
-        let base_path = cwd.display().to_string() + "/.data/artifact/github/";
-        let create_dir_result = fs::create_dir_all(&base_path);
-        if let Ok(_tmp) = create_dir_result {
-            let source_path = "./.data/output/github";
-            let output_path = base_path + "/github-repos.tar.gz";
-
-            Command::new("tar")
-                .args(["-czf", &output_path, &source_path])
-                .output()
-                .expect("Failed to create the artifact");
-
-            println!(
-                "\n{}:\n{:?}",
-                "Created the archive".green().bold(),
-                output_path
-            );
-
-            let gpg_passphrase_env = env::var("GPG_PASSPHRASE");
-            let gpg_passphrase = match gpg_passphrase_env.unwrap().trim().parse::<String>() {
-                Ok(value) => value,
-                Err(_) => String::new(),
-            };
-
-            let encrypted_artifact_path = output_path.to_owned() + ".gpg";
-            Command::new("gpg")
-                .args([
-                    "--batch",
-                    "--yes",
-                    "--passphrase",
-                    &gpg_passphrase,
-                    "--symmetric",
-                    "--cipher-algo",
-                    "aes256",
-                    "--output",
-                    &encrypted_artifact_path,
-                    &output_path,
-                ])
-                .output()
-                .expect("Failed to encrypt the artifact");
-
-            println!(
-                "\n{}:\n{:?}",
-                "Encrypted the archive".green().bold(),
-                encrypted_artifact_path
-            );
-        }
-    }
-
-    fn restore_from_artifact(&self) {
-        println!("\n{}", "Restoring data from the artifact...".cyan().bold());
-        let cwd = env::current_dir().unwrap();
-        println!(
-            "\n{}:\n{:?}",
-            "The current directory is".cyan().bold(),
-            cwd.display()
-        );
-        let base_path = cwd.display().to_string() + "/.data/artifact/github/";
-        let artifact_path = base_path.to_owned() + "github-repos.tar.gz";
-        let encrypted_artifact_path = base_path.to_owned() + "github-repos.tar.gz.gpg";
-
-        let gpg_passphrase_env = env::var("GPG_PASSPHRASE");
-        let gpg_passphrase = match gpg_passphrase_env.unwrap().trim().parse::<String>() {
-            Ok(value) => value,
-            Err(_) => String::new(),
-        };
-
-        Command::new("gpg")
-            .args([
-                "--batch",
-                "--yes",
-                "--passphrase",
-                &gpg_passphrase,
-                "--decrypt",
-                "--output",
-                &artifact_path,
-                &encrypted_artifact_path,
-            ])
-            .output()
-            .expect("Failed to decrypt the artifact");
-
-        println!(
-            "\n{}:\n{:?}",
-            "Decrypted the archive".green().bold(),
-            encrypted_artifact_path
-        );
-
-        let output_path = "./";
-
-        Command::new("tar")
-            .args(["-xzf", &artifact_path, &output_path])
-            .output()
-            .expect("Failed to unpack the artifact");
-
-        println!(
-            "\n{}:\n{:?}",
-            "Unpacked the archive".green().bold(),
-            artifact_path
-        );
     }
 }
