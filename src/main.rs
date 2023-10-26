@@ -14,7 +14,7 @@ mod system_information;
 
 type Programs<'a> = [&'a str; 6];
 
-/// The main program entry point.
+/// The entry point of the CLI.
 fn main() {
     let mut args: Args = args();
 
@@ -44,7 +44,7 @@ fn main() {
     }
 }
 
-/// Prompts input from the user, processes it, and returns the selected program index.
+/// Prompts input from the user, processes it, and returns the index of the selected program.
 fn choose_program(programs: Programs, program_arg: Option<String>) -> usize {
     let is_some = program_arg.is_some();
     let mut program_arg_input = if is_some {

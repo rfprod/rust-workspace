@@ -14,10 +14,12 @@ use std::{
     fs::File,
 };
 
+/// The entry point of the program.
 pub fn main() {
     LinfaTrain::new();
 }
 
+/// Input arguments of the program.
 struct InuputArguments {
     max_iterations: u64,
 }

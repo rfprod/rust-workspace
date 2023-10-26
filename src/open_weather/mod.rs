@@ -7,11 +7,12 @@ use std::{
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
-/// The open weather program entry point.
+/// The entry point of the program.
 pub fn main() {
     OpenWeather::new();
 }
 
+/// Input arguments of the program.
 struct InuputArguments {
     city: Option<String>,
     api_key: Option<String>,

@@ -8,7 +8,7 @@ use sysinfo::{ProcessExt, System, SystemExt};
 
 type Subprograms<'a> = [&'a str; 6];
 
-/// The system information program entry point.
+/// The entry point of the program.
 pub fn main() {
     SystemInformation::new();
 }
