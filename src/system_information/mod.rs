@@ -27,7 +27,7 @@ impl SystemInformation {
         program
     }
 
-    /// Initializes the system information program.
+    /// Initializes the program.
     fn init(&mut self) {
         println!("\n{}", "System information initialized.".blue().bold());
 

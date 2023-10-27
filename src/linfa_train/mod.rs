@@ -35,7 +35,7 @@ impl LinfaTrain {
         program
     }
 
-    /// Initializes the linfa train program.
+    /// Initializes the program.
     fn init(&mut self) {
         println!("\n{}", "Linfa train initialized.".blue().bold());
 

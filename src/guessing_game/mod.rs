@@ -26,7 +26,7 @@ impl GuessingGame {
         program
     }
 
-    /// Initializes the guessing game.
+    /// Initializes the program.
     fn init(&mut self) {
         println!("\n{}", "Guessing game initialized.".blue().bold());
 

@@ -11,7 +11,7 @@ pub fn main(context_arg: Option<String>) {
     DataPipelineArtifact::new(context_arg);
 }
 
-/// Supported contextx.
+/// Supported contexts.
 type Contexts<'a> = [&'a str; 2];
 
 struct DataPipelineArtifact;
@@ -24,7 +24,7 @@ impl DataPipelineArtifact {
         program
     }
 
-    /// Initializes the data pipeline.
+    /// Initializes the program.
     fn init(&mut self, context: Option<String>) {
         println!("\n{}", "DataPipelineArtifact initialized.".blue().bold());
 
@@ -87,7 +87,7 @@ impl DataPipelineArtifact {
             let output_path = base_path + "/github-repos.tar.gz";
 
             Command::new("tar")
-                .args(["-czf", &output_path, &source_path])
+                .args(["-czf", &output_path, source_path])
                 .output()
                 .expect("Failed to create the artifact");
 
@@ -138,7 +138,7 @@ impl DataPipelineArtifact {
         );
         let base_path = cwd.display().to_string() + "/.data/artifact/github/";
         let artifact_path = base_path.to_owned() + "github-repos.tar.gz";
-        let encrypted_artifact_path = base_path.to_owned() + "github-repos.tar.gz.gpg";
+        let encrypted_artifact_path = base_path + "github-repos.tar.gz.gpg";
 
         let gpg_passphrase_env = env::var("GPG_PASSPHRASE");
         let gpg_passphrase = match gpg_passphrase_env.unwrap().trim().parse::<String>() {
@@ -169,7 +169,7 @@ impl DataPipelineArtifact {
         let output_path = "./";
 
         Command::new("tar")
-            .args(["-xzf", &artifact_path, &output_path])
+            .args(["-xzf", &artifact_path, output_path])
             .output()
             .expect("Failed to unpack the artifact");
 
