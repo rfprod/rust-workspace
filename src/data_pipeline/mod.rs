@@ -44,12 +44,20 @@ type Contexts<'a> = [&'a str; 2];
 /// Supported collections.
 type Collections<'a> = [&'a str; 1];
 
-struct DataPipeline;
+struct DataPipeline<'a> {
+    contexts: Contexts<'a>,
+    collections: Collections<'a>,
+}
 
-impl DataPipeline {
+impl<'a> DataPipeline<'a> {
     /// Creates a new data pipeline.
-    fn new() -> DataPipeline {
-        let mut program = DataPipeline;
+    fn new() -> DataPipeline<'a> {
+        let contexts: Contexts = ["Create artifact", "Restore artifact"];
+        let collections: Collections = ["repos"];
+        let mut program = DataPipeline {
+            contexts,
+            collections,
+        };
         program.init();
         program
     }
@@ -60,29 +68,25 @@ impl DataPipeline {
 
         let _result = self.load_env_vars();
 
-        let contexts: Contexts = ["Create artifact", "Restore artifact"];
-
         let args = self.args();
 
         let context_arg = args.context.to_owned();
 
-        let context_index = self.choose_context(contexts, context_arg);
+        let context_index = self.choose_context(context_arg);
 
-        let context = contexts[context_index];
-
-        let collections: Collections = ["repos"];
+        let context = self.contexts[context_index];
 
         let collection_arg = args.collection.to_owned();
 
-        let collection_index = self.choose_collection(collections, collection_arg);
+        let collection_index = self.choose_collection(collection_arg);
 
-        let collection = collections[collection_index];
+        let collection = self.collections[collection_index];
 
         match context_index {
             0 => self.execute(args.search_term, context.to_owned(), collection.to_owned()),
             1 => {
-                artifact::main(args.context);
-                mongo::main(args.collection);
+                artifact::main(self.contexts, args.context);
+                mongo::main(self.collections, args.collection);
             }
             _ => {
                 println!(
@@ -109,7 +113,7 @@ impl DataPipeline {
     }
 
     /// Prompts input from the user, processes it, and returns the index of the selected context.
-    fn choose_context(&self, contexts: Contexts, context_arg: Option<String>) -> usize {
+    fn choose_context(&self, context_arg: Option<String>) -> usize {
         let is_some = context_arg.is_some();
         let mut context_arg_input = if is_some {
             match context_arg.unwrap().trim().parse::<String>() {
@@ -124,7 +128,7 @@ impl DataPipeline {
             let mut context_input = String::new();
 
             if context_arg_input.is_empty() {
-                self.print_context_instructions(contexts);
+                self.print_context_instructions();
 
                 io::stdin()
                     .read_line(&mut context_input)
@@ -138,9 +142,9 @@ impl DataPipeline {
                 Err(_) => continue,
             };
 
-            match context_index.cmp(&contexts.len()) {
+            match context_index.cmp(&self.contexts.len()) {
                 Ordering::Less => {
-                    return self.select_context(contexts, context_index);
+                    return self.select_context(context_index);
                 }
                 Ordering::Greater => context_arg_input = self.reset_input_arg(),
                 Ordering::Equal => context_arg_input = self.reset_input_arg(),
@@ -149,13 +153,13 @@ impl DataPipeline {
     }
 
     /// Prints the context selection instructions.
-    fn print_context_instructions(&self, contexts: Contexts) {
+    fn print_context_instructions(&self) {
         println!("\n{}", "Available contexts:".yellow().bold());
 
-        let max_i = contexts.len() - 1;
+        let max_i = self.contexts.len() - 1;
         let mut i = 0;
         while i <= max_i {
-            println!("{}: {}", i, contexts[i]);
+            println!("{}: {}", i, self.contexts[i]);
             i += 1;
         }
 
@@ -167,14 +171,14 @@ impl DataPipeline {
     }
 
     /// Prints selected context and returns the context index.
-    fn select_context(&self, contexts: Contexts, context_index: usize) -> usize {
-        let context = contexts[context_index];
+    fn select_context(&self, context_index: usize) -> usize {
+        let context = self.contexts[context_index];
         println!("You selected: {}", context);
         context_index
     }
 
     /// Prompts input from the user, processes it, and returns the index of the selected context.
-    fn choose_collection(&self, collections: Collections, collection_arg: Option<String>) -> usize {
+    fn choose_collection(&self, collection_arg: Option<String>) -> usize {
         let is_some = collection_arg.is_some();
         let mut collection_arg_input = if is_some {
             match collection_arg.unwrap().trim().parse::<String>() {
@@ -189,7 +193,7 @@ impl DataPipeline {
             let mut collection_input = String::new();
 
             if collection_arg_input.is_empty() {
-                self.print_collection_instructions(collections);
+                self.print_collection_instructions();
 
                 io::stdin()
                     .read_line(&mut collection_input)
@@ -203,9 +207,9 @@ impl DataPipeline {
                 Err(_) => continue,
             };
 
-            match collection_index.cmp(&collections.len()) {
+            match collection_index.cmp(&self.collections.len()) {
                 Ordering::Less => {
-                    return self.select_collection(collections, collection_index);
+                    return self.select_collection(collection_index);
                 }
                 Ordering::Greater => collection_arg_input = self.reset_input_arg(),
                 Ordering::Equal => collection_arg_input = self.reset_input_arg(),
@@ -214,13 +218,13 @@ impl DataPipeline {
     }
 
     /// Prints the collection selection instructions.
-    fn print_collection_instructions(&self, collections: Collections) {
+    fn print_collection_instructions(&self) {
         println!("\n{}", "Available collections:".yellow().bold());
 
-        let max_i = collections.len() - 1;
+        let max_i = self.collections.len() - 1;
         let mut i = 0;
         while i <= max_i {
-            println!("{}: {}", i, collections[i]);
+            println!("{}: {}", i, self.collections[i]);
             i += 1;
         }
 
@@ -232,8 +236,8 @@ impl DataPipeline {
     }
 
     /// Prints selected collection and returns the collection index.
-    fn select_collection(&self, collections: Collections, collection_index: usize) -> usize {
-        let collection = collections[collection_index];
+    fn select_collection(&self, collection_index: usize) -> usize {
+        let collection = self.collections[collection_index];
         println!("You selected: {}", collection);
         collection_index
     }
@@ -338,8 +342,8 @@ impl DataPipeline {
                 continue;
             } else {
                 println!("\n{}", "Download complete".green().bold());
-                artifact::main(Some(context));
-                mongo::main(Some(collection));
+                artifact::main(self.contexts, Some(context));
+                mongo::main(self.collections, Some(collection));
                 break;
             }
         }

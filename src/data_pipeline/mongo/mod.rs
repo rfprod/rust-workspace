@@ -8,19 +8,21 @@ use mongodb::sync::Client;
 use octorust::types::Repository;
 
 /// The entry point of the program.
-pub fn main(collection_arg: Option<String>) {
-    DataPipelineMongoDb::new(collection_arg);
+pub fn main(collections: Collections, collection_arg: Option<String>) {
+    DataPipelineMongoDb::new(collections, collection_arg);
 }
 
 /// Supported collections.
 type Collections<'a> = [&'a str; 1];
 
-struct DataPipelineMongoDb;
+struct DataPipelineMongoDb<'a> {
+    collections: Collections<'a>,
+}
 
-impl DataPipelineMongoDb {
+impl<'a> DataPipelineMongoDb<'a> {
     /// Creates a new program for working with MongoDb.
-    fn new(collection_arg: Option<String>) -> DataPipelineMongoDb {
-        let mut program = DataPipelineMongoDb;
+    fn new(collections: Collections, collection_arg: Option<String>) -> DataPipelineMongoDb {
+        let mut program = DataPipelineMongoDb { collections };
         program.init(collection_arg);
         program
     }
@@ -31,13 +33,11 @@ impl DataPipelineMongoDb {
 
         println!("\n{} {:?}", "Selected collection".blue().bold(), collection);
 
-        let collections: Collections = ["repos"];
-
-        let collection_index = self.choose_collection(collections, collection);
+        let collection_index = self.choose_collection(collection);
 
         match collection_index {
             0 => {
-                let collection = collections[collection_index];
+                let collection = self.collections[collection_index];
                 self.create_collection(collection);
             }
             _ => {
@@ -52,7 +52,7 @@ impl DataPipelineMongoDb {
     }
 
     /// Finds selected collection and returns the collection index.
-    fn choose_collection(&self, collections: Collections, collection_arg: Option<String>) -> usize {
+    fn choose_collection(&self, collection_arg: Option<String>) -> usize {
         let is_some = collection_arg.is_some();
         let collection_arg_input = if is_some {
             match collection_arg.unwrap().trim().parse::<String>() {
@@ -64,7 +64,7 @@ impl DataPipelineMongoDb {
         };
 
         let mut index = usize::MAX;
-        for (i, ctx) in collections.iter().enumerate() {
+        for (i, ctx) in self.collections.iter().enumerate() {
             if ctx.to_owned().eq(collection_arg_input.as_str()) {
                 index = i;
                 break;
@@ -87,7 +87,7 @@ impl DataPipelineMongoDb {
         let dir_content_result = fs::read_dir(&base_path);
 
         let Ok(dir_content) = dir_content_result else {
-            panic!("\n{} {:?}", "Can't read directory", base_path);
+            panic!("\n{} {:?}", "Can't read directory".red().bold(), base_path);
         };
 
         let mut docs: Vec<Repository> = vec![];
@@ -118,15 +118,26 @@ impl DataPipelineMongoDb {
             Err(_) => String::new(),
         };
 
-        let client = Client::with_uri_str(connection_url).expect("Can't get Mongo client");
+        let client_connection = Client::with_uri_str(&connection_url);
+        let client = match client_connection {
+            Ok(value) => value,
+            Err(_) => {
+                panic!("Unable to connect uring {}", connection_url);
+            }
+        };
 
         let db = client.database("local");
 
-        if let Ok(collection_name) = db.list_collection_names(None) {
-            for (_i, col) in collection_name.iter().enumerate() {
-                println!("{}", col);
+        match db.list_collection_names(None) {
+            Ok(value) => {
+                for (_i, col) in value.iter().enumerate() {
+                    println!("{}", col);
+                }
             }
-        }
+            Err(err) => {
+                panic!("Unable to connect uring {}\n {:?}", connection_url, err);
+            }
+        };
 
         let collection_ref = db.collection::<Repository>(collection);
 
