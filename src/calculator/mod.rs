@@ -25,7 +25,7 @@ impl Calculator {
         program
     }
 
-    /// Initializes the calculator.
+    /// Initializes the program.
     fn init(&mut self) {
         println!("\n{}", "Calculator initialized.".blue().bold());
 

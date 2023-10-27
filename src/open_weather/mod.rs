@@ -28,7 +28,7 @@ impl OpenWeather {
         program
     }
 
-    /// Initializes the open weather program.
+    /// Initializes the program.
     fn init(&mut self) {
         println!("\n{}", "Open weather initialized.".blue().bold());
 
