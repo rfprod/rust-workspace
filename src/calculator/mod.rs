@@ -18,7 +18,7 @@ struct InuputArguments {
 struct Calculator;
 
 impl Calculator {
-    /// Creates a new calculator.
+    /// Program constructor.
     fn new() -> Calculator {
         let mut program = Calculator;
         program.init();
@@ -34,7 +34,7 @@ impl Calculator {
         self.calculate(args.expression);
     }
 
-    /// Parses the user expression.
+    /// Parses arguments passed to the program.
     fn args(&mut self) -> InuputArguments {
         let mut args: Args = args();
 

@@ -1,3 +1,5 @@
+/// MongoDB module for the data pipeline.
+///
 use std::{
     env::{self},
     fs,
@@ -20,7 +22,7 @@ struct DataPipelineMongoDb<'a> {
 }
 
 impl<'a> DataPipelineMongoDb<'a> {
-    /// Creates a new program for working with MongoDb.
+    /// Program constructor.
     fn new(collections: Collections, collection_arg: Option<String>) -> DataPipelineMongoDb {
         let mut program = DataPipelineMongoDb { collections };
         program.init(collection_arg);
@@ -126,7 +128,13 @@ impl<'a> DataPipelineMongoDb<'a> {
             }
         };
 
-        let db = client.database("local");
+        let db_name_env = env::var("MONGODB_DATABASE");
+        let db_name = match db_name_env.unwrap().trim().parse::<String>() {
+            Ok(value) => value,
+            Err(_) => String::new(),
+        };
+
+        let db = client.database(db_name.as_str());
 
         match db.list_collection_names(None) {
             Ok(value) => {

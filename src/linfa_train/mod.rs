@@ -28,7 +28,7 @@ struct LinfaTrain;
 
 /// Source: https:///github.com/DataPsycho/data-pipelines-in-rust/blob/main/diabetes_ml_pipeline/Cargo.toml
 impl LinfaTrain {
-    /// Creates a new linfa train instance.
+    /// Program constructor.
     fn new() -> LinfaTrain {
         let mut program = LinfaTrain;
         program.init();
@@ -45,7 +45,7 @@ impl LinfaTrain {
         self.load_model();
     }
 
-    /// Parses the input arguments.
+    /// Parses arguments passed to the program.
     fn args(&mut self) -> InuputArguments {
         let mut args: Args = args();
 
