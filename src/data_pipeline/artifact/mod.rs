@@ -6,20 +6,22 @@ use std::{
 
 use colored::Colorize;
 
-/// The entry point of the program.
-pub fn main(context_arg: Option<String>) {
-    DataPipelineArtifact::new(context_arg);
-}
-
 /// Supported contexts.
 type Contexts<'a> = [&'a str; 2];
 
-struct DataPipelineArtifact;
+/// The entry point of the program.
+pub fn main(contexts: Contexts, context_arg: Option<String>) {
+    DataPipelineArtifact::new(contexts, context_arg);
+}
 
-impl DataPipelineArtifact {
+struct DataPipelineArtifact<'a> {
+    contexts: Contexts<'a>,
+}
+
+impl<'a> DataPipelineArtifact<'a> {
     /// Creates a new program for working with artifacts.
-    fn new(context_arg: Option<String>) -> DataPipelineArtifact {
-        let mut program = DataPipelineArtifact;
+    fn new(contexts: Contexts, context_arg: Option<String>) -> DataPipelineArtifact {
+        let mut program = DataPipelineArtifact { contexts };
         program.init(context_arg);
         program
     }
@@ -30,9 +32,7 @@ impl DataPipelineArtifact {
 
         println!("\n{} {:?}", "Selected context".blue().bold(), context);
 
-        let contexts: Contexts = ["Create artifact", "Restore artifact"];
-
-        let context_index = self.choose_context(contexts, context);
+        let context_index = self.choose_context(context);
 
         match context_index {
             0 => self.create_artifact(),
@@ -49,7 +49,7 @@ impl DataPipelineArtifact {
     }
 
     /// Prompts input from the user, processes it, and returns the selected context index.
-    fn choose_context(&self, contexts: Contexts, context_arg: Option<String>) -> usize {
+    fn choose_context(&self, context_arg: Option<String>) -> usize {
         let is_some = context_arg.is_some();
         let context_arg_input = if is_some {
             match context_arg.unwrap().trim().parse::<String>() {
@@ -61,7 +61,7 @@ impl DataPipelineArtifact {
         };
 
         let mut index = usize::MAX;
-        for (i, ctx) in contexts.iter().enumerate() {
+        for (i, ctx) in self.contexts.iter().enumerate() {
             if ctx.to_owned().eq(context_arg_input.as_str()) {
                 index = i;
                 break;
