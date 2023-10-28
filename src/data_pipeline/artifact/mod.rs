@@ -150,7 +150,13 @@ impl<'a> DataPipelineArtifact<'a> {
             Err(_) => String::new(),
         };
 
-        Command::new("gpg")
+        println!(
+            "\n{}:\n{:?}",
+            "Encrypted artifact path".green().bold(),
+            encrypted_artifact_path
+        );
+
+        match Command::new("gpg")
             .args([
                 "--batch",
                 "--yes",
@@ -162,25 +168,37 @@ impl<'a> DataPipelineArtifact<'a> {
                 &encrypted_artifact_path,
             ])
             .output()
-            .expect("Failed to decrypt the artifact");
-
-        println!(
-            "\n{}:\n{:?}",
-            "Decrypted the archive".green().bold(),
-            encrypted_artifact_path
-        );
-
-        let output_path = "./";
-
-        Command::new("tar")
-            .args(["-xzf", &artifact_path, output_path])
-            .output()
-            .expect("Failed to unpack the artifact");
+        {
+            Ok(output) => {
+                println!(
+                    "{}\n{:?}",
+                    "Decrypt artifact success".bold().green(),
+                    output
+                );
+            }
+            Err(error) => {
+                println!("{}\n{:?}", "Decrypt artifact error".bold().red(), error);
+            }
+        }
 
         println!(
             "\n{}:\n{:?}",
             "Unpacked the archive".green().bold(),
             artifact_path
         );
+
+        let output_path = "./";
+
+        match Command::new("tar")
+            .args(["-xzf", &artifact_path, output_path])
+            .output()
+        {
+            Ok(output) => {
+                println!("{}\n{:?}", "Unpack artifact success".bold().green(), output);
+            }
+            Err(error) => {
+                println!("{}\n{:?}", "Unpack artifact error".bold().red(), error);
+            }
+        }
     }
 }
