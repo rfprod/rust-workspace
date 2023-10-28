@@ -87,8 +87,9 @@ impl DataPipelineEnvironment {
         let lines = self.read_lines(env_path_str);
         let config: Vec<_> = lines
             .iter()
+            .filter(|x| x.contains('='))
             .flat_map(|x| {
-                let split_pair = x.split('=').collect::<Vec<&str>>();
+                let mut split_pair = x.split('=').collect::<Vec<&str>>();
                 let split_key = split_pair.first();
                 let some_key = split_key.is_some();
                 let key = if some_key {
@@ -99,16 +100,8 @@ impl DataPipelineEnvironment {
                 } else {
                     String::new()
                 };
-                let split_value = split_pair.get(1);
-                let some_value = split_value.is_some();
-                let value = if some_value {
-                    match split_value.unwrap().trim().parse::<String>() {
-                        Ok(value) => value,
-                        Err(_) => String::new(),
-                    }
-                } else {
-                    String::new()
-                };
+                split_pair.remove(0);
+                let value = split_pair.join("");
                 let map = vec![(key, value)];
                 map
             })
