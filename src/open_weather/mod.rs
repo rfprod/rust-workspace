@@ -1,7 +1,7 @@
 use colored::Colorize;
 use hyper::{body::Buf, Client, Uri};
 use std::{
-    env::{args, Args},
+    env::args,
     io::{self, Write},
 };
 
@@ -39,13 +39,13 @@ impl OpenWeather {
 
     /// Parses arguments passed to the program.
     fn args(&mut self) -> InuputArguments {
-        let mut args: Args = args();
+        let arguments: Vec<String> = args().collect();
 
-        println!("\n{}:\n{:?}", "Arguments".cyan().bold(), args);
+        println!("\n{}:\n{:?}", "Arguments".cyan().bold(), arguments);
 
         InuputArguments {
-            city: args.nth(2),
-            api_key: args.nth(3),
+            city: arguments.get(2).cloned(),
+            api_key: arguments.get(3).cloned(),
         }
     }
 

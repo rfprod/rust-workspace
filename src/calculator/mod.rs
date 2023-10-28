@@ -1,9 +1,6 @@
 use colored::Colorize;
 use meval::eval_str;
-use std::{
-    env::{args, Args},
-    io,
-};
+use std::{env::args, io};
 
 /// The entry point of the program.
 pub fn main() {
@@ -36,12 +33,12 @@ impl Calculator {
 
     /// Parses arguments passed to the program.
     fn args(&mut self) -> InuputArguments {
-        let mut args: Args = args();
+        let arguments: Vec<String> = args().collect();
 
-        println!("\n{}:\n{:?}", "Arguments".cyan().bold(), args);
+        println!("\n{}:\n{:?}", "Arguments".cyan().bold(), arguments);
 
         InuputArguments {
-            expression: args.nth(2),
+            expression: arguments.get(2).cloned(),
         }
     }
 

@@ -1,9 +1,5 @@
 use colored::Colorize;
-use std::{
-    cmp::Ordering,
-    env::{args, Args},
-    io,
-};
+use std::{cmp::Ordering, env::args, io};
 use sysinfo::{ProcessExt, System, SystemExt};
 
 type Subprograms<'a> = [&'a str; 6];
@@ -51,12 +47,12 @@ impl SystemInformation {
 
     /// Parses arguments passed to the program.
     fn args(&mut self) -> InuputArguments {
-        let mut args: Args = args();
+        let arguments: Vec<String> = args().collect();
 
-        println!("\n{}:\n{:?}", "Arguments".cyan().bold(), args);
+        println!("\n{}:\n{:?}", "Arguments".cyan().bold(), arguments);
 
         InuputArguments {
-            subprogram: args.nth(2),
+            subprogram: arguments.get(2).cloned(),
         }
     }
 

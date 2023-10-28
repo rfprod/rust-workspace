@@ -8,11 +8,7 @@ use linfa_logistic::LogisticRegression;
 use ndarray::{Array, Array1, Array2};
 use std::io::Read;
 use std::path::Path;
-use std::{
-    env::{args, Args},
-    fs,
-    fs::File,
-};
+use std::{env::args, fs, fs::File};
 
 /// The entry point of the program.
 pub fn main() {
@@ -47,12 +43,13 @@ impl LinfaTrain {
 
     /// Parses arguments passed to the program.
     fn args(&mut self) -> InuputArguments {
-        let mut args: Args = args();
+        let arguments: Vec<String> = args().collect();
 
-        println!("\n{}:\n{:?}", "Arguments".cyan().bold(), args);
+        println!("\n{}:\n{:?}", "Arguments".cyan().bold(), arguments);
 
-        let max_iterations = args
-            .nth(2)
+        let max_iterations = arguments
+            .get(2)
+            .cloned()
             .unwrap_or_default()
             .trim()
             .parse::<u64>()

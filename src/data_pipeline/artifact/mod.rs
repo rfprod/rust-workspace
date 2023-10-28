@@ -14,8 +14,8 @@ pub type Contexts<'a> = [&'a str; 2];
 pub const CONTEXTS: Contexts = ["Create artifact", "Restore artifact"];
 
 /// The entry point of the program.
-pub fn main(contexts: Contexts, context_arg: Option<String>) {
-    DataPipelineArtifact::new(contexts, context_arg);
+pub fn main(contexts: Contexts, context_arg: Option<String>, collection: String) {
+    DataPipelineArtifact::new(contexts, context_arg, collection);
 }
 
 struct DataPipelineArtifact<'a> {
@@ -24,14 +24,18 @@ struct DataPipelineArtifact<'a> {
 
 impl<'a> DataPipelineArtifact<'a> {
     /// Program constructor.
-    fn new(contexts: Contexts, context_arg: Option<String>) -> DataPipelineArtifact {
+    fn new(
+        contexts: Contexts,
+        context_arg: Option<String>,
+        collection: String,
+    ) -> DataPipelineArtifact {
         let mut program = DataPipelineArtifact { contexts };
-        program.init(context_arg);
+        program.init(context_arg, collection);
         program
     }
 
     /// Initializes the program.
-    fn init(&mut self, context: Option<String>) {
+    fn init(&mut self, context: Option<String>, collection: String) {
         println!("\n{}", "DataPipelineArtifact initialized.".blue().bold());
 
         println!("\n{} {:?}", "Selected context".blue().bold(), context);
@@ -39,8 +43,8 @@ impl<'a> DataPipelineArtifact<'a> {
         let context_index = self.choose_context(context);
 
         match context_index {
-            0 => self.create_artifact(),
-            1 => self.restore_from_artifact(),
+            0 => self.create_artifact(collection),
+            1 => self.restore_from_artifact(collection),
             _ => {
                 println!(
                     "\n{}",
@@ -76,7 +80,7 @@ impl<'a> DataPipelineArtifact<'a> {
     }
 
     /// Create an encrypted archive containing downloaded artifacts.
-    fn create_artifact(&self) {
+    fn create_artifact(&self, collection: String) {
         println!("\n{}", "Creating the artifact...".cyan().bold());
         let cwd = env::current_dir().unwrap();
         println!(
@@ -87,19 +91,22 @@ impl<'a> DataPipelineArtifact<'a> {
         let base_path = cwd.display().to_string() + "/.data/artifact/github/";
         let create_dir_result = fs::create_dir_all(&base_path);
         if let Ok(_tmp) = create_dir_result {
-            let source_path = "./.data/output/github";
-            let output_path = base_path + "/github-repos.tar.gz";
+            let source_path = "./.data/output/github/".to_string() + collection.as_str() + "/";
+            let output_path = base_path + "/github-" + collection.as_str() + ".tar.gz";
 
-            Command::new("tar")
-                .args(["-czf", &output_path, source_path])
+            match Command::new("tar")
+                .args(["-czf", &output_path, &source_path])
                 .output()
-                .expect("Failed to create the artifact");
+            {
+                Ok(output) => {
+                    println!("{}\n{:?}", "Create artifact success".bold().green(), output);
+                }
+                Err(error) => {
+                    panic!("{}\n{:?}", "Create artifact error".bold().red(), error);
+                }
+            };
 
-            println!(
-                "\n{}:\n{:?}",
-                "Created the archive".green().bold(),
-                output_path
-            );
+            println!("\n{}:\n{:?}", "Artifact path".green().bold(), output_path);
 
             let gpg_passphrase_env = env::var("GPG_PASSPHRASE");
             let gpg_passphrase = match gpg_passphrase_env.unwrap().trim().parse::<String>() {
@@ -108,7 +115,7 @@ impl<'a> DataPipelineArtifact<'a> {
             };
 
             let encrypted_artifact_path = output_path.to_owned() + ".gpg";
-            Command::new("gpg")
+            match Command::new("gpg")
                 .args([
                     "--batch",
                     "--yes",
@@ -122,17 +129,28 @@ impl<'a> DataPipelineArtifact<'a> {
                     &output_path,
                 ])
                 .output()
-                .expect("Failed to encrypt the artifact");
+            {
+                Ok(output) => {
+                    println!(
+                        "{}\n{:?}",
+                        "Encrypt artifact success".bold().green(),
+                        output
+                    );
+                }
+                Err(error) => {
+                    panic!("{}\n{:?}", "Encrypt artifact error".bold().red(), error);
+                }
+            }
 
             println!(
                 "\n{}:\n{:?}",
-                "Encrypted the archive".green().bold(),
+                "Encrypted artifact path".green().bold(),
                 encrypted_artifact_path
             );
         }
     }
 
-    fn restore_from_artifact(&self) {
+    fn restore_from_artifact(&self, collection: String) {
         println!("\n{}", "Restoring data from the artifact...".cyan().bold());
         let cwd = env::current_dir().unwrap();
         println!(
@@ -141,8 +159,13 @@ impl<'a> DataPipelineArtifact<'a> {
             cwd.display()
         );
         let base_path = cwd.display().to_string() + "/.data/artifact/github/";
-        let artifact_path = base_path.to_owned() + "github-repos.tar.gz";
-        let encrypted_artifact_path = base_path + "github-repos.tar.gz.gpg";
+
+        let artifact_file_name = "github-".to_string() + collection.as_str() + ".tar.gz";
+        let encrypted_artifact_file_name =
+            "github-".to_string() + collection.as_str() + ".tar.gz.gpg";
+
+        let artifact_path = base_path.to_owned() + artifact_file_name.as_str();
+        let encrypted_artifact_path = base_path + encrypted_artifact_file_name.as_str();
 
         let gpg_passphrase_env = env::var("GPG_PASSPHRASE");
         let gpg_passphrase = match gpg_passphrase_env.unwrap().trim().parse::<String>() {
@@ -177,15 +200,11 @@ impl<'a> DataPipelineArtifact<'a> {
                 );
             }
             Err(error) => {
-                println!("{}\n{:?}", "Decrypt artifact error".bold().red(), error);
+                panic!("{}\n{:?}", "Decrypt artifact error".bold().red(), error);
             }
         }
 
-        println!(
-            "\n{}:\n{:?}",
-            "Unpacked the archive".green().bold(),
-            artifact_path
-        );
+        println!("\n{}:\n{:?}", "Artifact path".green().bold(), artifact_path);
 
         let output_path = "./";
 
@@ -197,7 +216,7 @@ impl<'a> DataPipelineArtifact<'a> {
                 println!("{}\n{:?}", "Unpack artifact success".bold().green(), output);
             }
             Err(error) => {
-                println!("{}\n{:?}", "Unpack artifact error".bold().red(), error);
+                panic!("{}\n{:?}", "Unpack artifact error".bold().red(), error);
             }
         }
     }
