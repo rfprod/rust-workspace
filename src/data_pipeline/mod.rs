@@ -36,22 +36,16 @@ struct InuputArguments {
     search_term: Option<String>,
 }
 
-/// Supported contexts.
-type Contexts<'a> = [&'a str; 2];
-
-/// Supported collections.
-type Collections<'a> = [&'a str; 1];
-
 struct DataPipeline<'a> {
-    contexts: Contexts<'a>,
-    collections: Collections<'a>,
+    contexts: artifact::Contexts<'a>,
+    collections: mongo::Collections<'a>,
 }
 
 impl<'a> DataPipeline<'a> {
     /// Program constructor.
     fn new() -> DataPipeline<'a> {
-        let contexts: Contexts = ["Create artifact", "Restore artifact"];
-        let collections: Collections = ["repos"];
+        let contexts: artifact::Contexts = artifact::CONTEXTS;
+        let collections: mongo::Collections = mongo::COLLECTIONS;
         let mut program = DataPipeline {
             contexts,
             collections,
@@ -284,7 +278,7 @@ impl<'a> DataPipeline<'a> {
             let per_page = 5;
             page += 1;
 
-            let mut fetch_result = github::FetchResult {
+            let mut fetch_result = github::ReposFetchResult {
                 items: Vec::<RepoSearchResultItem>::new(),
                 total: 0,
                 retry: false,
@@ -319,7 +313,7 @@ impl<'a> DataPipeline<'a> {
                         println!("\n{}: {:?}", "There was an error".red(), error);
                         let items = Vec::<RepoSearchResultItem>::new();
                         let total: i64 = 0;
-                        github::FetchResult {
+                        github::ReposFetchResult {
                             items,
                             total,
                             retry: false,

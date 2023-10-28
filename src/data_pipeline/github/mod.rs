@@ -12,21 +12,23 @@ use std::{
     process::Command,
 };
 
+/// Custom result type for fetch results.
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
+/// Fetch repositories from GitHub.
 pub async fn repos(
     q: &str,
     sort: SearchReposSort,
     order: Order,
     per_page: i64,
     page: i64,
-) -> Result<FetchResult> {
+) -> Result<ReposFetchResult> {
     let p = DataPipelineGitHub::new();
     p.repos_request(q, sort, order, per_page, page).await
 }
 
 /// GitHub repos fetch result.
-pub struct FetchResult {
+pub struct ReposFetchResult {
     pub items: Vec<RepoSearchResultItem>,
     pub total: i64,
     pub retry: bool,
@@ -48,7 +50,7 @@ impl DataPipelineGitHub {
         order: Order,
         per_page: i64,
         page: i64,
-    ) -> Result<FetchResult> {
+    ) -> Result<ReposFetchResult> {
         let token_env = env::var("GITHUB_TOKEN");
         let token = match token_env.unwrap().trim().parse::<String>() {
             Ok(value) => value,
@@ -110,7 +112,7 @@ impl DataPipelineGitHub {
         };
 
         if retry {
-            let result = FetchResult {
+            let result = ReposFetchResult {
                 items: Vec::<RepoSearchResultItem>::new(),
                 total: 0,
                 retry: true,
@@ -135,7 +137,7 @@ impl DataPipelineGitHub {
         let items = res.body.items.to_owned();
         let total = res.body.total_count.to_owned();
 
-        let result = FetchResult {
+        let result = ReposFetchResult {
             items,
             total,
             retry: false,
