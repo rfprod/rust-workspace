@@ -1,10 +1,6 @@
 use colored::Colorize;
 use rand::{thread_rng, Rng};
-use std::{
-    cmp::Ordering,
-    env::{args, Args},
-    io,
-};
+use std::{cmp::Ordering, env::args, io};
 
 /// The entry point of the program.
 pub fn main() {
@@ -39,11 +35,13 @@ impl GuessingGame {
 
     /// Parses arguments passed to the program.
     fn args(&mut self) -> InuputArguments {
-        let mut args: Args = args();
+        let arguments: Vec<String> = args().collect();
 
-        println!("\n{}:\n{:?}", "Arguments".cyan().bold(), args);
+        println!("\n{}:\n{:?}", "Arguments".cyan().bold(), arguments);
 
-        InuputArguments { guess: args.nth(2) }
+        InuputArguments {
+            guess: arguments.get(2).cloned(),
+        }
     }
 
     /// Generates a secret number.

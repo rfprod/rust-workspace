@@ -10,11 +10,11 @@
 use colored::Colorize;
 use octorust::{
     types::SearchReposSort,
-    types::{Order, RepoSearchResultItem},
+    types::{Order, RepoSearchResultItem, Repository, WorkflowRun},
 };
 use std::{
     cmp::Ordering,
-    env::{self, args, Args},
+    env::{self, args},
     fs::{self, File},
     io,
 };
@@ -77,8 +77,12 @@ impl<'a> DataPipeline<'a> {
         match context_index {
             0 => self.execute(args.search_term, context.to_owned(), collection.to_owned()),
             1 => {
-                artifact::main(self.contexts, args.context);
-                mongo::main(self.collections, args.collection);
+                artifact::main(
+                    self.contexts,
+                    Some(context.to_owned()),
+                    collection.to_owned(),
+                );
+                mongo::main(self.collections, Some(collection.to_owned()));
             }
             _ => {
                 println!(
@@ -93,14 +97,21 @@ impl<'a> DataPipeline<'a> {
 
     /// Parses arguments passed to the program.
     fn args(&mut self) -> InuputArguments {
-        let mut args: Args = args();
+        let arguments: Vec<String> = args().collect();
 
-        println!("\n{}:\n{:?}", "Arguments".cyan().bold(), args);
+        println!("\n{}:\n{:?}", "Arguments".cyan().bold(), arguments);
+
+        let context = arguments.get(2).cloned();
+        println!("- context: {:?}", context);
+        let collection = arguments.get(3).cloned();
+        println!("- collection: {:?}", collection);
+        let search_term = arguments.get(4).cloned();
+        println!("- search_term: {:?}", search_term);
 
         InuputArguments {
-            context: args.nth(2),
-            collection: args.nth(3),
-            search_term: args.nth(4),
+            context,
+            collection,
+            search_term,
         }
     }
 
@@ -264,6 +275,26 @@ impl<'a> DataPipeline<'a> {
             search_term_input = search_term_arg_input;
         }
 
+        let col = collection.as_str();
+
+        match col {
+            "repos" => self.execute_repos_collector(search_term_input.clone()),
+            "workflows" => self.execute_workflows_collector(),
+            _ => panic!(
+                "\n{}: {:?}",
+                "Nothing to execute. The collection is not supported"
+                    .red()
+                    .bold(),
+                col
+            ),
+        }
+
+        artifact::main(self.contexts, Some(context), collection.to_owned());
+        mongo::main(self.collections, Some(collection));
+    }
+
+    /// Collects repository metadata.
+    fn execute_repos_collector(&self, search_term_input: String) {
         let mut page = 0;
 
         loop {
@@ -271,10 +302,9 @@ impl<'a> DataPipeline<'a> {
 
             println!("\n{}: {}", "Your search term".cyan(), search_term);
 
-            let query_string = search_term + " in:name in:description in:readme user:rfprod";
+            let query_string =
+                "  in:name in:description in:readme user:".to_string() + search_term.as_str();
             let q = query_string.as_str();
-            let sort = SearchReposSort::Noop;
-            let order = Order::Asc;
             let per_page = 5;
             page += 1;
 
@@ -290,7 +320,8 @@ impl<'a> DataPipeline<'a> {
                 .unwrap();
 
             runtime.block_on(async {
-                let result = github::repos(q, sort, order, per_page, page).await;
+                let result =
+                    github::repos(q, SearchReposSort::Noop, Order::Asc, per_page, page).await;
                 fetch_result = match result {
                     Ok(data) => {
                         if data.retry {
@@ -298,10 +329,12 @@ impl<'a> DataPipeline<'a> {
                         } else {
                             let cwd = env::current_dir().unwrap();
                             println!("The current directory is {}", cwd.display());
-                            let base_path = cwd.display().to_string() + "/.data/output/github";
+                            let base_path =
+                                cwd.display().to_string() + "/.data/output/github/repos";
                             let create_dir_result = fs::create_dir_all(&base_path);
                             if let Ok(_tmp) = create_dir_result {
-                                let path = base_path + "/github" + &page.to_string() + ".json";
+                                let path =
+                                    base_path + "/github-repos-" + &page.to_string() + ".json";
                                 let file = File::create(path).unwrap();
                                 let _result = serde_json::to_writer_pretty(file, &data.items);
                             }
@@ -334,10 +367,120 @@ impl<'a> DataPipeline<'a> {
                 continue;
             } else {
                 println!("\n{}", "Download complete".green().bold());
-                artifact::main(self.contexts, Some(context));
-                mongo::main(self.collections, Some(collection));
                 break;
             }
         }
+    }
+
+    /// Collects repository workflow metadata.
+    fn execute_workflows_collector(&self) {
+        let records = self.collect_documents();
+        let mut record_index = 0;
+        let records_len = records.len();
+
+        while record_index < records_len {
+            let record = &records[record_index];
+            let mut fetch_result = github::WorkflowRunsFetchResult {
+                items: Vec::<WorkflowRun>::new(),
+                total: 0,
+                retry: false,
+            };
+
+            let runtime = tokio::runtime::Builder::new_current_thread()
+                .enable_all()
+                .build()
+                .unwrap();
+
+            let owner = &record.owner.clone().unwrap().login;
+            println!("owner {:?}", owner);
+            let repo = &record.name;
+            println!("repo {:?}", repo);
+            let branch = &record.default_branch;
+            println!("branch {:?}", branch);
+
+            runtime.block_on(async {
+                let result = github::workflow_runs(owner, repo, branch, "", 100, 1).await;
+                fetch_result = match result {
+                    Ok(data) => {
+                        if data.retry {
+                            record_index -= 1;
+                        } else {
+                            let cwd = env::current_dir().unwrap();
+                            println!("The current directory is {}", cwd.display());
+                            let base_path =
+                                cwd.display().to_string() + "/.data/output/github/workflows";
+                            let create_dir_result = fs::create_dir_all(&base_path);
+                            if let Ok(_tmp) = create_dir_result {
+                                if !data.items.is_empty() {
+                                    let path = base_path + "/" + &record.name + ".json";
+                                    let file = File::create(path).unwrap();
+                                    let _result = serde_json::to_writer_pretty(file, &data.items);
+                                }
+                            }
+                            record_index += 1;
+                        }
+                        data
+                    }
+                    Err(error) => {
+                        println!("\n{}: {:?}", "There was an error".red(), error);
+                        let items = Vec::<WorkflowRun>::new();
+                        let total: i64 = 0;
+                        github::WorkflowRunsFetchResult {
+                            items,
+                            total,
+                            retry: false,
+                        }
+                    }
+                };
+            });
+
+            println!(
+                "\n{}: {:?}/{:?}",
+                "Progress/Total".green().bold(),
+                record_index,
+                records_len
+            );
+        }
+    }
+
+    /// Collects repository records for the repository workflow collector.
+    fn collect_documents(&self) -> Vec<Repository> {
+        let cwd = env::current_dir().unwrap();
+        println!(
+            "\n{}:\n{:?}",
+            "The current directory is".cyan().bold(),
+            cwd.display()
+        );
+        let json_data_dir = "/.data/output/github/repos/";
+        let base_path = cwd.display().to_string() + json_data_dir;
+        println!("\n{}:\n{:?}", "Base path".cyan().bold(), base_path);
+        let dir_content_result = fs::read_dir(&base_path);
+
+        let Ok(dir_content) = dir_content_result else {
+            panic!("\n{} {:?}", "Can't read directory".red().bold(), base_path);
+        };
+
+        let mut docs: Vec<Repository> = vec![];
+
+        let dir_entries = dir_content.enumerate();
+        for (_i, dir_entries_result) in dir_entries {
+            let Ok(dir_entry) = dir_entries_result else {
+                panic!("\n{}: {:?}", "Can't get dir entry", dir_entries_result);
+            };
+            println!("\n{}: {:?}", "Dir entry".green().bold(), dir_entry);
+
+            let file_content_result = fs::read_to_string(dir_entry.path());
+            let Ok(file_content) = file_content_result else {
+                panic!("\n{}: {:?}", "Can't get file content", file_content_result);
+            };
+
+            let parse_result = serde_json::from_str::<Vec<Repository>>(&file_content);
+            if let Ok(mut json) = parse_result {
+                docs.append(&mut json);
+            } else {
+                println!("Error serializing JSON file: {:?}", dir_entry.path());
+            }
+        }
+        docs
     }
 }
