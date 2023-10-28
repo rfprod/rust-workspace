@@ -20,7 +20,7 @@ struct InuputArguments {
 struct SystemInformation;
 
 impl SystemInformation {
-    /// Creates a new system information instance.
+    /// Program constructor.
     fn new() -> SystemInformation {
         let mut program = SystemInformation;
         program.init();
@@ -49,7 +49,7 @@ impl SystemInformation {
         };
     }
 
-    /// Parses the input arguments.
+    /// Parses arguments passed to the program.
     fn args(&mut self) -> InuputArguments {
         let mut args: Args = args();
 

@@ -21,7 +21,7 @@ struct InuputArguments {
 struct OpenWeather;
 
 impl OpenWeather {
-    /// Creates a new open weather instance.
+    /// Program constructor.
     fn new() -> OpenWeather {
         let mut program = OpenWeather;
         program.init();
@@ -37,7 +37,7 @@ impl OpenWeather {
         self.weather(args.city, args.api_key);
     }
 
-    /// Parses the input arguments.
+    /// Parses arguments passed to the program.
     fn args(&mut self) -> InuputArguments {
         let mut args: Args = args();
 

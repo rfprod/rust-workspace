@@ -19,7 +19,7 @@ struct InuputArguments {
 struct GuessingGame;
 
 impl GuessingGame {
-    /// Creates a new guessing game.
+    /// Program constructor.
     fn new() -> GuessingGame {
         let mut program = GuessingGame;
         program.init();
@@ -37,7 +37,7 @@ impl GuessingGame {
         self.start_guessing(secret_number, args.guess);
     }
 
-    /// Parses the user guess.
+    /// Parses arguments passed to the program.
     fn args(&mut self) -> InuputArguments {
         let mut args: Args = args();
 

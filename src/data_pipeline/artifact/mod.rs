@@ -1,3 +1,5 @@
+/// Artifact module for the data pipeline.
+///
 use std::{
     env::{self},
     fs,
@@ -19,7 +21,7 @@ struct DataPipelineArtifact<'a> {
 }
 
 impl<'a> DataPipelineArtifact<'a> {
-    /// Creates a new program for working with artifacts.
+    /// Program constructor.
     fn new(contexts: Contexts, context_arg: Option<String>) -> DataPipelineArtifact {
         let mut program = DataPipelineArtifact { contexts };
         program.init(context_arg);
