@@ -9,7 +9,9 @@ use std::{
 use colored::Colorize;
 
 /// Supported contexts.
-type Contexts<'a> = [&'a str; 2];
+pub type Contexts<'a> = [&'a str; 2];
+/// Supported contexts.
+pub const CONTEXTS: Contexts = ["Create artifact", "Restore artifact"];
 
 /// The entry point of the program.
 pub fn main(contexts: Contexts, context_arg: Option<String>) {

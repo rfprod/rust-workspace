@@ -15,7 +15,9 @@ pub fn main(collections: Collections, collection_arg: Option<String>) {
 }
 
 /// Supported collections.
-type Collections<'a> = [&'a str; 1];
+pub type Collections<'a> = [&'a str; 1];
+/// Supported collections.
+pub const COLLECTIONS: Collections = ["repos"];
 
 struct DataPipelineMongoDb<'a> {
     collections: Collections<'a>,
