@@ -1,12 +1,13 @@
+use colored::Colorize;
 /// Artifact module for the data pipeline.
 ///
 use std::{
     env::{self},
     fs,
-    process::Command,
 };
 
-use colored::Colorize;
+mod create_artifact;
+mod restore_artifact;
 
 /// Supported contexts.
 pub type Contexts<'a> = [&'a str; 2];
@@ -16,6 +17,13 @@ pub const CONTEXTS: Contexts = ["Create artifact", "Restore artifact"];
 /// The entry point of the program.
 pub fn main(contexts: Contexts, context_arg: Option<String>, collection: String) {
     DataPipelineArtifact::new(contexts, context_arg, collection);
+}
+
+struct ArtifactFileConfig {
+    json_collection_path: String,
+    artifact_base_path: String,
+    artifact_file_name: String,
+    encrypted_artifact_file_name: String,
 }
 
 struct DataPipelineArtifact<'a> {
@@ -42,9 +50,22 @@ impl<'a> DataPipelineArtifact<'a> {
 
         let context_index = self.choose_context(context);
 
+        let config = self.fs_config(collection);
+
         match context_index {
-            0 => self.create_artifact(collection),
-            1 => self.restore_from_artifact(collection),
+            0 => {
+                let create_dir_result = fs::create_dir_all(&config.artifact_base_path);
+                if let Ok(_tmp) = create_dir_result {
+                    let source_path = config.json_collection_path;
+                    let output_path = config.artifact_base_path + &config.artifact_file_name;
+                    create_artifact::main(&output_path, &source_path);
+                }
+            }
+            1 => restore_artifact::main(
+                &config.artifact_base_path,
+                &config.artifact_file_name,
+                &config.encrypted_artifact_file_name,
+            ),
             _ => {
                 println!(
                     "\n{}",
@@ -79,145 +100,30 @@ impl<'a> DataPipelineArtifact<'a> {
         index
     }
 
-    /// Create an encrypted archive containing downloaded artifacts.
-    fn create_artifact(&self, collection: String) {
-        println!("\n{}", "Creating the artifact...".cyan().bold());
-        let cwd = env::current_dir().unwrap();
-        println!(
-            "\n{}:\n{:?}",
-            "The current directory is".cyan().bold(),
-            cwd.display()
-        );
-        let base_path = cwd.display().to_string() + "/.data/artifact/github/";
-        let create_dir_result = fs::create_dir_all(&base_path);
-        if let Ok(_tmp) = create_dir_result {
-            let source_path = "./.data/output/github/".to_string() + collection.as_str() + "/";
-            let output_path = base_path + "/github-" + collection.as_str() + ".tar.gz";
-
-            match Command::new("tar")
-                .args(["-czf", &output_path, &source_path])
-                .output()
-            {
-                Ok(output) => {
-                    println!("{}\n{:?}", "Create artifact success".bold().green(), output);
-                }
-                Err(error) => {
-                    panic!("{}\n{:?}", "Create artifact error".bold().red(), error);
-                }
-            };
-
-            println!("\n{}:\n{:?}", "Artifact path".green().bold(), output_path);
-
-            let gpg_passphrase_env = env::var("GPG_PASSPHRASE");
-            let gpg_passphrase = match gpg_passphrase_env.unwrap().trim().parse::<String>() {
-                Ok(value) => value,
-                Err(_) => String::new(),
-            };
-
-            let encrypted_artifact_path = output_path.to_owned() + ".gpg";
-            match Command::new("gpg")
-                .args([
-                    "--batch",
-                    "--yes",
-                    "--passphrase",
-                    &gpg_passphrase,
-                    "--symmetric",
-                    "--cipher-algo",
-                    "aes256",
-                    "--output",
-                    &encrypted_artifact_path,
-                    &output_path,
-                ])
-                .output()
-            {
-                Ok(output) => {
-                    println!(
-                        "{}\n{:?}",
-                        "Encrypt artifact success".bold().green(),
-                        output
-                    );
-                }
-                Err(error) => {
-                    panic!("{}\n{:?}", "Encrypt artifact error".bold().red(), error);
-                }
+    fn fs_config(&self, collection: String) -> ArtifactFileConfig {
+        let cwd = match env::current_dir() {
+            Ok(value) => {
+                println!("{}: {:?}", "Current directory".cyan().bold(), value);
+                value.display().to_string()
             }
+            Err(error) => {
+                panic!("{:?}", error);
+            }
+        };
 
-            println!(
-                "\n{}:\n{:?}",
-                "Encrypted artifact path".green().bold(),
-                encrypted_artifact_path
-            );
-        }
-    }
+        let json_base_path = "./.data/output/github/";
+        let json_collection_path = json_base_path.to_owned() + collection.as_str() + "/";
 
-    fn restore_from_artifact(&self, collection: String) {
-        println!("\n{}", "Restoring data from the artifact...".cyan().bold());
-        let cwd = env::current_dir().unwrap();
-        println!(
-            "\n{}:\n{:?}",
-            "The current directory is".cyan().bold(),
-            cwd.display()
-        );
-        let base_path = cwd.display().to_string() + "/.data/artifact/github/";
-
+        let artifact_base_path = cwd + "/.data/artifact/github/";
         let artifact_file_name = "github-".to_string() + collection.as_str() + ".tar.gz";
         let encrypted_artifact_file_name =
             "github-".to_string() + collection.as_str() + ".tar.gz.gpg";
 
-        let artifact_path = base_path.to_owned() + artifact_file_name.as_str();
-        let encrypted_artifact_path = base_path + encrypted_artifact_file_name.as_str();
-
-        let gpg_passphrase_env = env::var("GPG_PASSPHRASE");
-        let gpg_passphrase = match gpg_passphrase_env.unwrap().trim().parse::<String>() {
-            Ok(value) => value,
-            Err(_) => String::new(),
-        };
-
-        println!(
-            "\n{}:\n{:?}",
-            "Encrypted artifact path".green().bold(),
-            encrypted_artifact_path
-        );
-
-        match Command::new("gpg")
-            .args([
-                "--batch",
-                "--yes",
-                "--passphrase",
-                &gpg_passphrase,
-                "--decrypt",
-                "--output",
-                &artifact_path,
-                &encrypted_artifact_path,
-            ])
-            .output()
-        {
-            Ok(output) => {
-                println!(
-                    "{}\n{:?}",
-                    "Decrypt artifact success".bold().green(),
-                    output
-                );
-            }
-            Err(error) => {
-                panic!("{}\n{:?}", "Decrypt artifact error".bold().red(), error);
-            }
-        }
-
-        println!("\n{}:\n{:?}", "Artifact path".green().bold(), artifact_path);
-
-        let output_path = "./";
-
-        match Command::new("tar")
-            .args(["-xzf", &artifact_path, output_path])
-            .output()
-        {
-            Ok(output) => {
-                println!("{}\n{:?}", "Unpack artifact success".bold().green(), output);
-            }
-            Err(error) => {
-                panic!("{}\n{:?}", "Unpack artifact error".bold().red(), error);
-            }
+        ArtifactFileConfig {
+            json_collection_path,
+            artifact_base_path,
+            artifact_file_name,
+            encrypted_artifact_file_name,
         }
     }
 }

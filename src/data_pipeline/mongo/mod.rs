@@ -18,6 +18,10 @@ pub type Collections<'a> = [&'a str; 2];
 /// Supported collections.
 pub const COLLECTIONS: Collections = ["repos", "workflows"];
 
+struct MongoDbFileConfig {
+    json_data_dir: String,
+}
+
 struct DataPipelineMongoDb<'a> {
     collections: Collections<'a>,
 }
@@ -31,23 +35,29 @@ impl<'a> DataPipelineMongoDb<'a> {
     }
 
     /// Initializes the program.
-    fn init(&mut self, collection: Option<String>) {
+    fn init(&mut self, collection_arg: Option<String>) {
         println!("\n{}", "DataPipelineMongoDb initialized.".blue().bold());
 
-        println!("\n{} {:?}", "Selected collection".blue().bold(), collection);
+        println!(
+            "\n{} {:?}",
+            "Selected collection".blue().bold(),
+            collection_arg
+        );
 
-        let collection_index = self.choose_collection(collection);
+        let collection_index = self.choose_collection(collection_arg);
 
         match collection_index {
             0 => {
                 let collection = self.collections[collection_index];
                 let db = self.connect();
-                repos_collection::main(db, collection);
+                let fs_config = self.fs_config(collection.to_owned());
+                repos_collection::main(db, collection, &fs_config.json_data_dir);
             }
             1 => {
                 let collection = self.collections[collection_index];
                 let db = self.connect();
-                workflows_collection::main(db, collection);
+                let fs_config = self.fs_config(collection.to_owned());
+                workflows_collection::main(db, collection, &fs_config.json_data_dir);
             }
             _ => {
                 println!(
@@ -118,5 +128,22 @@ impl<'a> DataPipelineMongoDb<'a> {
             }
         };
         db
+    }
+
+    fn fs_config(&self, collection: String) -> MongoDbFileConfig {
+        let cwd = match env::current_dir() {
+            Ok(value) => {
+                println!("{}: {:?}", "Current directory".cyan().bold(), value);
+                value.display().to_string()
+            }
+            Err(error) => {
+                panic!("{:?}", error);
+            }
+        };
+
+        let json_base_path = cwd + "/.data/output/github/";
+        let json_data_dir = json_base_path + collection.as_str() + "/";
+
+        MongoDbFileConfig { json_data_dir }
     }
 }
