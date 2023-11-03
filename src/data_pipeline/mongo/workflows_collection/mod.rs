@@ -1,9 +1,6 @@
 /// MongoDB repos module for the data pipeline.
 ///
-use std::{
-    env::{self},
-    fs,
-};
+use std::fs;
 
 use colored::Colorize;
 use mongodb::sync::Database;
@@ -11,8 +8,8 @@ use mongodb::{bson::doc, options::FindOneAndUpdateOptions};
 use octorust::types::WorkflowRun;
 
 /// The entry point of the program.
-pub fn main(db: Database, collection_input: &str) {
-    MongoDbWorkflowsCollection::new(db, collection_input);
+pub fn main(db: Database, collection_input: &str, json_data_dir: &str) {
+    MongoDbWorkflowsCollection::new(db, collection_input, json_data_dir);
 }
 
 struct MongoDbWorkflowsCollection {
@@ -21,14 +18,18 @@ struct MongoDbWorkflowsCollection {
 
 impl MongoDbWorkflowsCollection {
     /// Program constructor.
-    fn new(db: Database, collection_input: &str) -> MongoDbWorkflowsCollection {
+    fn new(
+        db: Database,
+        collection_input: &str,
+        json_data_dir: &str,
+    ) -> MongoDbWorkflowsCollection {
         let mut program = MongoDbWorkflowsCollection { db };
-        program.init(collection_input);
+        program.init(collection_input, json_data_dir);
         program
     }
 
     /// Initializes the program.
-    fn init(&mut self, collection_input: &str) {
+    fn init(&mut self, collection_input: &str, json_data_dir: &str) {
         println!(
             "\n{}",
             "MongoDbWorkflowsCollection initialized.".blue().bold()
@@ -47,7 +48,17 @@ impl MongoDbWorkflowsCollection {
             );
         }
 
-        let json_data_dir = "/.data/output/github/workflows/";
+        println!("{}: {:?}", "JSON data dir".cyan(), json_data_dir);
+
+        if !json_data_dir.contains(collection) {
+            panic!(
+                "\n{}\nData dir: {:?}\nCollection: {:?}",
+                "JSON data dir does not contain collection name".red(),
+                json_data_dir,
+                collection
+            );
+        }
+
         self.execute(collection, json_data_dir);
     }
 
@@ -75,18 +86,14 @@ impl MongoDbWorkflowsCollection {
 
     /// Collects documents for further processing.
     fn collect_documents(&self, json_data_dir: &str) -> Vec<Vec<WorkflowRun>> {
-        let cwd = env::current_dir().unwrap();
-        println!(
-            "\n{}:\n{:?}",
-            "The current directory is".cyan().bold(),
-            cwd.display()
-        );
-        let base_path = cwd.display().to_string() + json_data_dir;
-        println!("\n{}:\n{:?}", "Base path".cyan().bold(), base_path);
-        let dir_content_result = fs::read_dir(&base_path);
+        let dir_content_result = fs::read_dir(json_data_dir);
 
         let Ok(dir_content) = dir_content_result else {
-            panic!("\n{} {:?}", "Can't read directory".red().bold(), base_path);
+            panic!(
+                "\n{} {:?}",
+                "Can't read directory".red().bold(),
+                json_data_dir
+            );
         };
 
         let mut docs: Vec<Vec<WorkflowRun>> = vec![];

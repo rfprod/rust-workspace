@@ -266,7 +266,10 @@ impl<'a> DataPipeline<'a> {
         let mut search_term_input = String::new();
 
         if search_term_arg_input.trim().is_empty() && search_term_input.trim().is_empty() {
-            println!("\n{}", "Please input a search term:".yellow().bold());
+            println!(
+                "\n{}",
+                "Please input a search term (GitHub user):".yellow().bold()
+            );
 
             io::stdin()
                 .read_line(&mut search_term_input)
