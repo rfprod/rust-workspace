@@ -7,13 +7,12 @@ use octorust::{
     types::{SearchReposSort, WorkflowRunStatus},
     Client,
 };
-use std::{
-    env::{self},
-    process::Command,
-};
+use std::env::{self};
 
 /// Custom result type for fetch results.
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
+
+mod rate_limit_handler;
 
 /// Fetch repositories from GitHub.
 pub async fn repos(
@@ -63,26 +62,6 @@ impl DataPipelineGitHub {
         DataPipelineGitHub
     }
 
-    /// Artificial timeout to comply with GitHub API rate limits.
-    fn sleep_for(&self, wait_timeout: i64) {
-        match Command::new("sleep").arg(wait_timeout.to_string()).spawn() {
-            Ok(mut child) => {
-                println!("\n{}", "Can sleep".bold().green());
-                match child.wait() {
-                    Ok(exit_status) => {
-                        println!("\n{}: {:?}", "Sleep success".bold().green(), exit_status);
-                    }
-                    Err(err) => {
-                        println!("\n{}: {:?}", "Sleep error".bold().red(), err);
-                    }
-                }
-            }
-            Err(err) => {
-                println!("\n{}: {:?}", "Can't sleep".bold().red(), err);
-            }
-        }
-    }
-
     /// GitHub repositories request.
     async fn repos_request(
         &self,
@@ -114,35 +93,11 @@ impl DataPipelineGitHub {
                     error
                 );
 
-                let err = error.to_string();
-
-                let rate_limit_regx =
-                    regex::Regex::new(r"(Rate limited for the next)\s+(\d+)\s+(seconds)").unwrap();
-                let captures = rate_limit_regx.captures(&err).map(|captures| {
-                    captures
-                        .iter() // All the captured groups
-                        .skip(1) // Skipping the complete match
-                        // .flat_map(|c| c) // Ignoring all empty optional matches
-                        .flatten()
-                        .map(|c| c.as_str()) // Grab the original strings
-                        .collect::<Vec<_>>() // Create a vector
-                });
-                let wait_timeout = match captures.as_deref() {
-                    Some(["Rate limited for the next", x, "seconds"]) => {
-                        let x: i64 = x.parse().expect("Can't parse number");
-                        x
-                    }
-                    _ => panic!("Unknown Command: {}", &err),
-                };
-                println!(
-                    "\n{}: {:?}",
-                    "GitHub API rate limit hit. Have to wait for".red(),
-                    wait_timeout
-                );
-
-                retry = true;
-
-                self.sleep_for(wait_timeout);
+                let wait_timeout = rate_limit_handler::error_handler(error);
+                if wait_timeout > 0 {
+                    retry = true;
+                    rate_limit_handler::sleep_for(wait_timeout);
+                }
 
                 Err(())
             }
@@ -226,34 +181,11 @@ impl DataPipelineGitHub {
                     error
                 );
 
-                let err = error.to_string();
-
-                let rate_limit_regx =
-                    regex::Regex::new(r"(Rate limited for the next)\s+(\d+)\s+(seconds)").unwrap();
-                let captures = rate_limit_regx.captures(&err).map(|captures| {
-                    captures
-                        .iter() // All the captured groups
-                        .skip(1) // Skipping the complete match
-                        .flatten()
-                        .map(|c| c.as_str()) // Grab the original strings
-                        .collect::<Vec<_>>() // Create a vector
-                });
-                let wait_timeout = match captures.as_deref() {
-                    Some(["Rate limited for the next", x, "seconds"]) => {
-                        let x: i64 = x.parse().expect("Can't parse number");
-                        x
-                    }
-                    _ => panic!("Unknown Command: {}", &err),
-                };
-                println!(
-                    "\n{}: {:?}",
-                    "GitHub API rate limit hit. Have to wait for".red(),
-                    wait_timeout
-                );
-
-                retry = true;
-
-                self.sleep_for(wait_timeout);
+                let wait_timeout = rate_limit_handler::error_handler(error);
+                if wait_timeout > 0 {
+                    retry = true;
+                    rate_limit_handler::sleep_for(wait_timeout);
+                }
 
                 Err(())
             }
