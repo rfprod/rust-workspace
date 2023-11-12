@@ -1,17 +1,17 @@
-/// Artifact module for the data pipeline.
+/// Artifact configuration submodule.
 ///
 use colored::Colorize;
 use std::env::{self};
 
 /// Artifact module context configuration.
 pub fn choose_context(contexts: [&str; 2], context_arg: Option<String>) -> usize {
-    let p = DataPipelineArtifactConfiguration::new(contexts);
+    let p = ArtifactConfiguration::new(contexts);
     p.choose_context(context_arg)
 }
 
 /// Artifact module file system configuration.
 pub fn fs_config(contexts: [&str; 2], collection: String) -> ArtifactFileConfig {
-    let p = DataPipelineArtifactConfiguration::new(contexts);
+    let p = ArtifactConfiguration::new(contexts);
     p.fs_config(collection)
 }
 
@@ -22,14 +22,14 @@ pub struct ArtifactFileConfig {
     pub encrypted_artifact_file_name: String,
 }
 
-struct DataPipelineArtifactConfiguration<'a> {
+struct ArtifactConfiguration<'a> {
     contexts: [&'a str; 2],
 }
 
-impl<'a> DataPipelineArtifactConfiguration<'a> {
+impl<'a> ArtifactConfiguration<'a> {
     /// Program constructor.
-    fn new(contexts: [&'a str; 2]) -> DataPipelineArtifactConfiguration {
-        DataPipelineArtifactConfiguration { contexts }
+    fn new(contexts: [&'a str; 2]) -> ArtifactConfiguration {
+        ArtifactConfiguration { contexts }
     }
 
     /// Artifact module context configuration.

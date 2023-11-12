@@ -13,23 +13,23 @@ pub fn main(
     artifact_file_name: &str,
     encrypted_artifact_file_name: &str,
 ) {
-    DataPipelineArtifactRestorer::new(
+    ArtifactRestorer::new(
         artifact_base_path,
         artifact_file_name,
         encrypted_artifact_file_name,
     );
 }
 
-struct DataPipelineArtifactRestorer;
+struct ArtifactRestorer;
 
-impl DataPipelineArtifactRestorer {
+impl ArtifactRestorer {
     /// Program constructor.
     fn new(
         artifact_base_path: &str,
         artifact_file_name: &str,
         encrypted_artifact_file_name: &str,
-    ) -> DataPipelineArtifactRestorer {
-        let program = DataPipelineArtifactRestorer;
+    ) -> ArtifactRestorer {
+        let program = ArtifactRestorer;
         program.init(
             artifact_base_path,
             artifact_file_name,
@@ -45,10 +45,7 @@ impl DataPipelineArtifactRestorer {
         artifact_file_name: &str,
         encrypted_artifact_file_name: &str,
     ) {
-        println!(
-            "\n{}",
-            "DataPipelineArtifactRestorer initialized.".blue().bold()
-        );
+        println!("\n{}", "ArtifactRestorer initialized.".blue().bold());
 
         println!("{} {:?}", "Artifact base path".cyan(), artifact_base_path);
         println!("{} {:?}", "Artifact file name".cyan(), artifact_file_name);

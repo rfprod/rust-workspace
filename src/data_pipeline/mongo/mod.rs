@@ -1,10 +1,8 @@
 /// MongoDB module for the data pipeline.
 ///
-use std::env::{self};
-
 use colored::Colorize;
-use mongodb::sync::{Client, Database};
 
+mod configuration;
 mod repos_collection;
 mod workflows_collection;
 
@@ -17,10 +15,6 @@ pub fn main(collections: Collections, collection_arg: Option<String>) {
 pub type Collections<'a> = [&'a str; 2];
 /// Supported collections.
 pub const COLLECTIONS: Collections = ["repos", "workflows"];
-
-struct MongoDbFileConfig {
-    json_data_dir: String,
-}
 
 struct DataPipelineMongoDb<'a> {
     collections: Collections<'a>,
@@ -44,19 +38,21 @@ impl<'a> DataPipelineMongoDb<'a> {
             collection_arg
         );
 
-        let collection_index = self.choose_collection(collection_arg);
+        let config = configuration::main(self.collections);
+
+        let collection_index = config.choose_collection(collection_arg);
 
         match collection_index {
             0 => {
                 let collection = self.collections[collection_index];
-                let db = self.connect();
-                let fs_config = self.fs_config(collection.to_owned());
+                let db = config.connect();
+                let fs_config = config.fs_config(collection.to_owned());
                 repos_collection::main(db, collection, &fs_config.json_data_dir);
             }
             1 => {
                 let collection = self.collections[collection_index];
-                let db = self.connect();
-                let fs_config = self.fs_config(collection.to_owned());
+                let db = config.connect();
+                let fs_config = config.fs_config(collection.to_owned());
                 workflows_collection::main(db, collection, &fs_config.json_data_dir);
             }
             _ => {
@@ -68,82 +64,5 @@ impl<'a> DataPipelineMongoDb<'a> {
                 )
             }
         }
-    }
-
-    /// Finds selected collection and returns the collection index.
-    fn choose_collection(&self, collection_arg: Option<String>) -> usize {
-        let is_some = collection_arg.is_some();
-        let collection_arg_input = if is_some {
-            match collection_arg.unwrap().trim().parse::<String>() {
-                Ok(value) => value,
-                Err(_) => String::new(),
-            }
-        } else {
-            String::new()
-        };
-
-        let mut index = usize::MAX;
-        for (i, ctx) in self.collections.iter().enumerate() {
-            if ctx.to_owned().eq(collection_arg_input.as_str()) {
-                index = i;
-                break;
-            }
-        }
-
-        index
-    }
-
-    /// Connects to the MongoDB instance and returns the database reference.
-    fn connect(&self) -> Database {
-        let connection_url_env = env::var("MONGODB_CONNECTION_STRING");
-        let connection_url = match connection_url_env.unwrap().trim().parse::<String>() {
-            Ok(value) => value,
-            Err(_) => String::new(),
-        };
-
-        let client_connection = Client::with_uri_str(&connection_url);
-        let client = match client_connection {
-            Ok(value) => value,
-            Err(_) => {
-                panic!("\nUnable to connect, connection URL: {}", connection_url);
-            }
-        };
-
-        let db_name_env = env::var("MONGODB_DATABASE");
-        let db_name = match db_name_env.unwrap().trim().parse::<String>() {
-            Ok(value) => value,
-            Err(_) => String::new(),
-        };
-
-        let db = client.database(db_name.as_str());
-
-        match db.list_collection_names(None) {
-            Ok(value) => {
-                for (_i, col) in value.iter().enumerate() {
-                    println!("\n{}: {:?}", "Collection".bold().cyan(), col);
-                }
-            }
-            Err(err) => {
-                panic!("\nUnable to list collection names\n {:?}", err);
-            }
-        };
-        db
-    }
-
-    fn fs_config(&self, collection: String) -> MongoDbFileConfig {
-        let cwd = match env::current_dir() {
-            Ok(value) => {
-                println!("{}: {:?}", "Current directory".cyan().bold(), value);
-                value.display().to_string()
-            }
-            Err(error) => {
-                panic!("{:?}", error);
-            }
-        };
-
-        let json_base_path = cwd + "/.data/output/github/";
-        let json_data_dir = json_base_path + collection.as_str() + "/";
-
-        MongoDbFileConfig { json_data_dir }
     }
 }
