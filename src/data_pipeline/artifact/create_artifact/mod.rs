@@ -9,25 +9,22 @@ use colored::Colorize;
 
 /// The entry point of the program.
 pub fn main(output_path: &str, source_path: &str) {
-    DataPipelineArtifactCreator::new(output_path, source_path);
+    ArtifactCreator::new(output_path, source_path);
 }
 
-struct DataPipelineArtifactCreator;
+struct ArtifactCreator;
 
-impl DataPipelineArtifactCreator {
+impl ArtifactCreator {
     /// Program constructor.
-    fn new(output_path: &str, source_path: &str) -> DataPipelineArtifactCreator {
-        let mut program = DataPipelineArtifactCreator;
+    fn new(output_path: &str, source_path: &str) -> ArtifactCreator {
+        let mut program = ArtifactCreator;
         program.init(output_path, source_path);
         program
     }
 
     /// Initializes the program.
     fn init(&mut self, output_path: &str, source_path: &str) {
-        println!(
-            "\n{}",
-            "DataPipelineArtifactCreator initialized.".blue().bold()
-        );
+        println!("\n{}", "ArtifactCreator initialized.".blue().bold());
 
         println!("{} {:?}", "Output path".cyan(), output_path);
         println!("{} {:?}", "Source path".cyan(), source_path);
