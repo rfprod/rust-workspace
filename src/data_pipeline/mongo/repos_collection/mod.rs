@@ -1,5 +1,5 @@
-/// MongoDB repos module for the data pipeline.
-///
+//! MongoDB repos module for the data pipeline.
+
 use std::fs;
 
 use colored::Colorize;

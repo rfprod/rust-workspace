@@ -1,3 +1,5 @@
+//! Linfa train module.
+
 use ciborium::{cbor, value};
 use colored::Colorize;
 use csv::Reader;

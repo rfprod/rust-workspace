@@ -1,5 +1,5 @@
-/// MongoDB module for the data pipeline.
-///
+//! MongoDB module for the data pipeline.
+
 use colored::Colorize;
 
 mod configuration;

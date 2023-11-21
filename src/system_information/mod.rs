@@ -1,3 +1,5 @@
+//! System information module.
+
 use colored::Colorize;
 use std::{cmp::Ordering, env::args, io};
 use sysinfo::{ProcessExt, System, SystemExt};

@@ -1,5 +1,5 @@
-/// GitHub API rate limit handler submodule for the data pipeline.
-///
+//! GitHub API rate limit handler submodule for the data pipeline.
+
 use colored::Colorize;
 use octorust::ClientError;
 use std::process::Command;

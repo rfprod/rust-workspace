@@ -1,5 +1,5 @@
-/// Artifact creation module for the data pipeline.
-///
+//! Artifact creation module for the data pipeline.
+
 use std::{
     env::{self},
     process::Command,

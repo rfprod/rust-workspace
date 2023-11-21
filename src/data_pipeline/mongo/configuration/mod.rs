@@ -1,5 +1,5 @@
-/// MongoDb configuration submodule.
-///
+//! MongoDb configuration submodule.
+
 use colored::Colorize;
 use mongodb::sync::{Client, Database};
 use std::env::{self};

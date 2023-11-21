@@ -1,5 +1,5 @@
-/// Artifact configuration submodule.
-///
+//! Artifact configuration submodule.
+
 use colored::Colorize;
 use std::env::{self};
 

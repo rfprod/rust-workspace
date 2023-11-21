@@ -1,5 +1,5 @@
-/// Environment loader module for the data pipeline.
-///
+//! Environment loader module for the data pipeline.
+
 use colored::Colorize;
 use std::{
     collections::HashMap,
