@@ -1,5 +1,5 @@
-/// Artifact restoration module for the data pipeline.
-///
+//! Artifact restoration module for the data pipeline.
+
 use std::{
     env::{self},
     process::Command,

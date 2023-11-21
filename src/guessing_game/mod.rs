@@ -1,3 +1,5 @@
+//! Guessing game module.
+
 use colored::Colorize;
 use rand::{thread_rng, Rng};
 use std::{cmp::Ordering, env::args, io};

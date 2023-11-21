@@ -1,5 +1,5 @@
-/// Artifact module for the data pipeline.
-///
+//! Artifact module for the data pipeline.
+
 use colored::Colorize;
 use std::fs;
 

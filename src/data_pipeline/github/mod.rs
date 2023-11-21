@@ -1,5 +1,5 @@
-/// GitHub module for the data pipeline.
-///
+//! GitHub module for the data pipeline.
+
 use colored::Colorize;
 use octorust::{
     auth::Credentials,

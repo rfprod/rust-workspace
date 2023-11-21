@@ -1,3 +1,5 @@
+//! Open weather module.
+
 use colored::Colorize;
 use hyper::{body::Buf, Client, Uri};
 use std::{
