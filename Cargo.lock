@@ -1095,6 +1095,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "linfa-trees"
+version = "0.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "464029f9a6ffd8016539a9c2a73e569b1118d50eb44638549f8cd5807ea77f8c"
+dependencies = [
+ "linfa",
+ "ndarray",
+ "ndarray-rand",
+ "serde",
+]
+
+[[package]]
 name = "linked-hash-map"
 version = "0.5.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1292,6 +1304,7 @@ dependencies = [
  "num-integer",
  "num-traits",
  "rawpointer",
+ "rayon",
  "serde",
 ]
 
@@ -1936,6 +1949,7 @@ dependencies = [
  "hyper",
  "linfa",
  "linfa-logistic",
+ "linfa-trees",
  "meval",
  "mongodb",
  "ndarray",
