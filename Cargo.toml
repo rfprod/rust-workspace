@@ -15,6 +15,7 @@ sysinfo = "0.18.0"
 # ML Packages for Model Training
 linfa = "0.6.1"
 linfa-logistic = "0.6.1"
+linfa-trees = { version = "0.6.1", features = ["serde"] }
 csv = "1.2.0"
 ndarray = "0.15.6"
 ciborium = "0.2.0"
