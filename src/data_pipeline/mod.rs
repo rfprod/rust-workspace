@@ -39,6 +39,7 @@ struct InuputArguments {
 struct DataPipeline<'a> {
     contexts: artifact::Contexts<'a>,
     collections: mongo::Collections<'a>,
+    github: github::DataPipelineGitHub,
 }
 
 impl<'a> DataPipeline<'a> {
@@ -46,9 +47,11 @@ impl<'a> DataPipeline<'a> {
     fn new() -> DataPipeline<'a> {
         let contexts: artifact::Contexts = artifact::CONTEXTS;
         let collections: mongo::Collections = mongo::COLLECTIONS;
+        let github: github::DataPipelineGitHub = github::main();
         let mut program = DataPipeline {
             contexts,
             collections,
+            github,
         };
         program.init();
         program
@@ -323,8 +326,10 @@ impl<'a> DataPipeline<'a> {
                 .unwrap();
 
             runtime.block_on(async {
-                let result =
-                    github::repos(q, SearchReposSort::Noop, Order::Asc, per_page, page).await;
+                let result = self
+                    .github
+                    .repos_request(q, SearchReposSort::Noop, Order::Asc, per_page, page)
+                    .await;
                 fetch_result = match result {
                     Ok(data) => {
                         if data.retry {
@@ -332,8 +337,8 @@ impl<'a> DataPipeline<'a> {
                         } else {
                             let cwd = env::current_dir().unwrap();
                             println!("The current directory is {}", cwd.display());
-                            let base_path =
-                                cwd.display().to_string() + "/.data/output/github/repos";
+                            let base_path = cwd.display().to_string()
+                                + self.github.configuration.repos_output.as_str();
                             let create_dir_result = fs::create_dir_all(&base_path);
                             if let Ok(_tmp) = create_dir_result {
                                 let path =
@@ -402,7 +407,10 @@ impl<'a> DataPipeline<'a> {
             println!("branch {:?}", branch);
 
             runtime.block_on(async {
-                let result = github::workflow_runs(owner, repo, branch, "", 100, 1).await;
+                let result = self
+                    .github
+                    .workflow_runs_request(owner, repo, branch, "", 100, 1)
+                    .await;
                 fetch_result = match result {
                     Ok(data) => {
                         if data.retry {
@@ -410,8 +418,8 @@ impl<'a> DataPipeline<'a> {
                         } else {
                             let cwd = env::current_dir().unwrap();
                             println!("The current directory is {}", cwd.display());
-                            let base_path =
-                                cwd.display().to_string() + "/.data/output/github/workflows";
+                            let base_path = cwd.display().to_string()
+                                + self.github.configuration.workflows_output.as_str();
                             let create_dir_result = fs::create_dir_all(&base_path);
                             if let Ok(_tmp) = create_dir_result {
                                 if !data.items.is_empty() {
@@ -454,7 +462,7 @@ impl<'a> DataPipeline<'a> {
             "The current directory is".cyan().bold(),
             cwd.display()
         );
-        let json_data_dir = "/.data/output/github/repos/";
+        let json_data_dir = self.github.configuration.repos_output.as_str();
         let base_path = cwd.display().to_string() + json_data_dir;
         println!("\n{}:\n{:?}", "Base path".cyan().bold(), base_path);
         let dir_content_result = fs::read_dir(&base_path);

@@ -14,32 +14,6 @@ type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>
 
 mod rate_limit_handler;
 
-/// Fetch repositories from GitHub.
-pub async fn repos(
-    q: &str,
-    sort: SearchReposSort,
-    order: Order,
-    per_page: i64,
-    page: i64,
-) -> Result<ReposFetchResult> {
-    let p = DataPipelineGitHub::new();
-    p.repos_request(q, sort, order, per_page, page).await
-}
-
-/// Fetch a repository workflow runs from GitHub.
-pub async fn workflow_runs(
-    owner: &str,
-    repo: &str,
-    branch: &str,
-    created: &str,
-    per_page: i64,
-    page: i64,
-) -> Result<WorkflowRunsFetchResult> {
-    let p = DataPipelineGitHub::new();
-    p.workflow_runs_request(owner, repo, branch, created, per_page, page)
-        .await
-}
-
 /// GitHub repos fetch result.
 pub struct ReposFetchResult {
     pub items: Vec<RepoSearchResultItem>,
@@ -54,16 +28,32 @@ pub struct WorkflowRunsFetchResult {
     pub retry: bool,
 }
 
-struct DataPipelineGitHub;
+pub struct DataPipelineGitHubFsConfiguration {
+    pub repos_output: String,
+    pub workflows_output: String,
+}
+
+/// The entry point of the program.
+pub fn main() -> DataPipelineGitHub {
+    DataPipelineGitHub::new()
+}
+
+pub struct DataPipelineGitHub {
+    pub configuration: DataPipelineGitHubFsConfiguration,
+}
 
 impl DataPipelineGitHub {
     /// Program constructor.
     fn new() -> DataPipelineGitHub {
-        DataPipelineGitHub
+        let configuration = DataPipelineGitHubFsConfiguration {
+            repos_output: String::from("/.data/output/github/repos"),
+            workflows_output: String::from("/.data/output/github/workflows"),
+        };
+        DataPipelineGitHub { configuration }
     }
 
     /// GitHub repositories request.
-    async fn repos_request(
+    pub async fn repos_request(
         &self,
         q: &str,
         sort: SearchReposSort,
@@ -138,7 +128,7 @@ impl DataPipelineGitHub {
     }
 
     /// GitHub repositories request.
-    async fn workflow_runs_request(
+    pub async fn workflow_runs_request(
         &self,
         owner: &str,
         repo: &str,
