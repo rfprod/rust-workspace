@@ -2,7 +2,7 @@
 
 use colored::Colorize;
 use std::{cmp::Ordering, env::args, io};
-use sysinfo::{ProcessExt, System, SystemExt};
+use sysinfo::{Components, Disks, System};
 
 type Subprograms<'a> = [&'a str; 6];
 
@@ -141,33 +141,28 @@ impl SystemInformation {
     /// Print information about the system.
     fn print_system_information(&mut self, system: System) -> System {
         println!("\n{}", "System information:".green());
-        println!("System name:           {:?}", system.get_name().unwrap());
-        println!(
-            "System kernel version: {:?}",
-            system.get_kernel_version().unwrap()
-        );
-        println!(
-            "System OS version:     {:?}",
-            system.get_os_version().unwrap()
-        );
-        println!(
-            "System host name:      {:?}",
-            system.get_host_name().unwrap()
-        );
+        println!("System name:           {:?}", System::name());
+        println!("System kernel version: {:?}", System::kernel_version());
+        println!("System OS version:     {:?}", System::os_version());
+        println!("System host name:      {:?}", System::host_name());
         system
     }
 
     /// Print the system processes information.
     fn print_processes(&mut self, system: System) -> System {
         println!("\n{}", "System processes:".green());
-        for (pid, proc_) in system.get_processes() {
+        for (pid, proc_) in system.processes() {
             let double_indent = "\t\t";
             let indent = "\t";
             println!(
                 "STATUS {}\t|\tPID {}{}|\tNAME {:?}",
-                proc_.status().as_str(),
+                proc_.status(),
                 pid,
-                if pid.lt(&999) { double_indent } else { indent },
+                if pid.as_u32().lt(&999) {
+                    double_indent
+                } else {
+                    indent
+                },
                 proc_.name(),
             );
         }
@@ -177,7 +172,8 @@ impl SystemInformation {
     /// Print the temperature of the components.
     fn print_components_temperature(&mut self, system: System) -> System {
         println!("\n{}", "Components temperature:".green());
-        for component in system.get_components() {
+        let components = Components::new_with_refreshed_list();
+        for component in &components {
             println!("{:?}", component);
         }
         system
@@ -186,7 +182,8 @@ impl SystemInformation {
     /// Print the disks information.
     fn print_disks_info(&mut self, system: System) -> System {
         println!("\n{}", "Disks information:".green());
-        for disk in system.get_disks() {
+        let disks = Disks::new_with_refreshed_list();
+        for disk in &disks {
             println!("{:?}", disk);
         }
         system
@@ -195,10 +192,10 @@ impl SystemInformation {
     /// Print the RAM and SWAP information.
     fn print_memory_information(&mut self, system: System) -> System {
         println!("\n{}", "Memory information:".green());
-        println!("Total memory: {} KB", system.get_total_memory());
-        println!("Used memory : {} KB", system.get_used_memory());
-        println!("Total swap  : {} KB", system.get_total_swap());
-        println!("Used swap   : {} KB", system.get_used_swap());
+        println!("Total memory: {} KB", system.total_memory());
+        println!("Used memory : {} KB", system.used_memory());
+        println!("Total swap  : {} KB", system.total_swap());
+        println!("Used swap   : {} KB", system.used_swap());
         system
     }
 
