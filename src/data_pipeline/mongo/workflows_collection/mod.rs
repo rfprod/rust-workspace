@@ -66,7 +66,7 @@ impl MongoDbWorkflowsCollection {
         let mut exists = false;
         match self.db.list_collection_names(None) {
             Ok(value) => {
-                for (_i, col) in value.iter().enumerate() {
+                for col in value.iter() {
                     if collection.eq(col) {
                         exists = true;
                     }
@@ -86,9 +86,9 @@ impl MongoDbWorkflowsCollection {
 
     /// Collects documents for further processing.
     fn collect_documents(&self, json_data_dir: &str) -> Vec<Vec<WorkflowRun>> {
-        let dir_content_result = fs::read_dir(json_data_dir);
+        let read_dir_result = fs::read_dir(json_data_dir);
 
-        let Ok(dir_content) = dir_content_result else {
+        let Ok(dir_content) = read_dir_result else {
             panic!(
                 "\n{} {:?}",
                 "Can't read directory".red().bold(),
@@ -98,8 +98,7 @@ impl MongoDbWorkflowsCollection {
 
         let mut docs: Vec<Vec<WorkflowRun>> = vec![];
 
-        let dir_entries = dir_content.enumerate();
-        for (_i, dir_entries_result) in dir_entries {
+        for dir_entries_result in dir_content {
             let Ok(dir_entry) = dir_entries_result else {
                 panic!("\n{}: {:?}", "Can't get dir entry", dir_entries_result);
             };

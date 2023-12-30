@@ -3,7 +3,7 @@
 use colored::Colorize;
 use std::fs;
 
-mod config;
+mod configuration;
 mod create_artifact;
 mod restore_artifact;
 
@@ -39,9 +39,9 @@ impl<'a> DataPipelineArtifact<'a> {
 
         println!("\n{} {:?}", "Selected context".blue().bold(), context);
 
-        let context_index = config::choose_context(self.contexts, context);
+        let context_index = configuration::choose_context(self.contexts, context);
 
-        let fs_config = config::fs_config(self.contexts, collection);
+        let fs_config = configuration::fs_config(self.contexts, collection);
 
         match context_index {
             0 => {

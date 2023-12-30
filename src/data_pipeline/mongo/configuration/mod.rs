@@ -71,7 +71,7 @@ impl<'a> MongoDbConfiguration<'a> {
 
         match db.list_collection_names(None) {
             Ok(value) => {
-                for (_i, col) in value.iter().enumerate() {
+                for col in value.iter() {
                     println!("\n{}: {:?}", "Collection".bold().cyan(), col);
                 }
             }
