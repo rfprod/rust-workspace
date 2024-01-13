@@ -188,3 +188,6 @@ impl<'a> DataPipelineConfiguration<'a> {
         String::new()
     }
 }
+
+#[cfg(test)]
+mod tests;

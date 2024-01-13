@@ -23,10 +23,10 @@ impl<'a> MongoDbConfiguration<'a> {
     }
 
     /// MongoDb module collection configuration.
-    pub fn choose_collection(&self, collection_arg: Option<String>) -> usize {
-        let is_some = collection_arg.is_some();
-        let collection_arg_input = if is_some {
-            match collection_arg.unwrap().trim().parse::<String>() {
+    pub fn choose_collection(&self, collection: Option<String>) -> usize {
+        let is_some = collection.is_some();
+        let collection_input = if is_some {
+            match collection.unwrap().trim().parse::<String>() {
                 Ok(value) => value,
                 Err(_) => String::new(),
             }
@@ -36,7 +36,7 @@ impl<'a> MongoDbConfiguration<'a> {
 
         let mut index = usize::MAX;
         for (i, ctx) in self.collections.iter().enumerate() {
-            if ctx.to_owned().eq(collection_arg_input.as_str()) {
+            if ctx.to_owned().eq(collection_input.as_str()) {
                 index = i;
                 break;
             }
@@ -100,3 +100,6 @@ impl<'a> MongoDbConfiguration<'a> {
         MongoDbFileConfig { json_data_dir }
     }
 }
+
+#[cfg(test)]
+mod tests;
