@@ -4,9 +4,9 @@ use colored::Colorize;
 use std::env::{self};
 
 /// Artifact module context configuration.
-pub fn choose_context(contexts: [&str; 2], context_arg: Option<String>) -> usize {
+pub fn choose_context(contexts: [&str; 2], context: Option<String>) -> usize {
     let p = ArtifactConfiguration::new(contexts);
-    p.choose_context(context_arg)
+    p.choose_context(context)
 }
 
 /// Artifact module file system configuration.
@@ -33,10 +33,10 @@ impl<'a> ArtifactConfiguration<'a> {
     }
 
     /// Artifact module context configuration.
-    fn choose_context(&self, context_arg: Option<String>) -> usize {
-        let is_some = context_arg.is_some();
-        let context_arg_input = if is_some {
-            match context_arg.unwrap().trim().parse::<String>() {
+    fn choose_context(&self, context: Option<String>) -> usize {
+        let is_some = context.is_some();
+        let context_input = if is_some {
+            match context.unwrap().trim().parse::<String>() {
                 Ok(value) => value,
                 Err(_) => String::new(),
             }
@@ -46,7 +46,7 @@ impl<'a> ArtifactConfiguration<'a> {
 
         let mut index = usize::MAX;
         for (i, ctx) in self.contexts.iter().enumerate() {
-            if ctx.to_owned().eq(context_arg_input.as_str()) {
+            if ctx.to_owned().eq(context_input.as_str()) {
                 index = i;
                 break;
             }
@@ -83,3 +83,6 @@ impl<'a> ArtifactConfiguration<'a> {
         }
     }
 }
+
+#[cfg(test)]
+mod tests;
