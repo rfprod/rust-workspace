@@ -1,4 +1,4 @@
-//! Logistic regression module.
+//! Decision tree module.
 
 use ciborium::{cbor, value};
 use colored::Colorize;
@@ -59,7 +59,7 @@ impl LinfaTrainDecisionTree {
         InuputArguments { max_depth }
     }
 
-    /// The dataset headers
+    /// The dataset headers.
     fn headers(&mut self, reader: &mut Reader<File>) -> Vec<String> {
         let result = reader
             .headers()
@@ -71,7 +71,7 @@ impl LinfaTrainDecisionTree {
         result
     }
 
-    /// The dataset data
+    /// The dataset data.
     fn data(&mut self, reader: &mut Reader<File>) -> Vec<Vec<f32>> {
         let result = reader
             .records()
@@ -90,7 +90,7 @@ impl LinfaTrainDecisionTree {
         result
     }
 
-    /// The dataset records
+    /// The dataset records.
     fn records(&mut self, data: &[Vec<f32>], target_index: usize) -> Array2<f32> {
         let mut records: Vec<f32> = vec![];
         for record in data.iter() {
@@ -110,7 +110,7 @@ impl LinfaTrainDecisionTree {
         result
     }
 
-    /// The dataset targets
+    /// The dataset targets.
     fn targets(&mut self, data: &[Vec<f32>], target_index: usize) -> Array1<usize> {
         let targets = data
             .iter()
@@ -124,7 +124,7 @@ impl LinfaTrainDecisionTree {
         Array::from(targets)
     }
 
-    /// The dataset
+    /// The dataset.
     /// Data source: https:///github.com/plotly/datasets/blob/master/diabetes.csv
     fn dataset(&mut self) -> Dataset<f32, usize, ndarray::Dim<[usize; 1]>> {
         let file_path = ".data/input/diabetes.csv";
@@ -138,7 +138,7 @@ impl LinfaTrainDecisionTree {
         Dataset::new(records, targets).with_feature_names(features)
     }
 
-    /// Trains the model
+    /// Trains the model.
     fn train(&mut self, max_depth: usize) {
         println!("\n{}", "Training the model...".yellow().bold());
         let dataset = self.dataset();
@@ -160,7 +160,7 @@ impl LinfaTrainDecisionTree {
         println!("\n{} {:?}", "Model saved, path:".yellow(), output.as_path());
     }
 
-    /// Loads the model
+    /// Loads the model.
     fn load_model(&mut self) {
         println!("\n{}", "Testing the model...".yellow().bold());
         let dataset = self.dataset();

@@ -7,7 +7,9 @@ use linfa::prelude::*;
 use linfa::Dataset;
 use linfa_logistic::FittedLogisticRegression;
 use linfa_logistic::LogisticRegression;
+use ndarray::Axis;
 use ndarray::{Array, Array1, Array2};
+use plotters::prelude::*;
 use std::io::Read;
 use std::path::Path;
 use std::{env::args, fs, fs::File};
@@ -41,6 +43,7 @@ impl LinfaTrainLogisticRegression {
 
         self.train(args.max_iterations);
         self.load_model();
+        self.generate_plots();
     }
 
     /// Parses arguments passed to the program.
@@ -60,7 +63,7 @@ impl LinfaTrainLogisticRegression {
         InuputArguments { max_iterations }
     }
 
-    /// The dataset headers
+    /// The dataset headers.
     fn headers(&mut self, reader: &mut Reader<File>) -> Vec<String> {
         let result = reader
             .headers()
@@ -72,7 +75,7 @@ impl LinfaTrainLogisticRegression {
         result
     }
 
-    /// The dataset data
+    /// The dataset data.
     fn data(&mut self, reader: &mut Reader<File>) -> Vec<Vec<f32>> {
         let result = reader
             .records()
@@ -91,7 +94,7 @@ impl LinfaTrainLogisticRegression {
         result
     }
 
-    /// The dataset records
+    /// The dataset records.
     fn records(&mut self, data: &[Vec<f32>], target_index: usize) -> Array2<f32> {
         let mut records: Vec<f32> = vec![];
         for record in data.iter() {
@@ -111,7 +114,7 @@ impl LinfaTrainLogisticRegression {
         result
     }
 
-    /// The dataset targets
+    /// The dataset targets.
     fn targets(&mut self, data: &[Vec<f32>], target_index: usize) -> Array1<i32> {
         let targets = data
             .iter()
@@ -125,7 +128,7 @@ impl LinfaTrainLogisticRegression {
         Array::from(targets)
     }
 
-    /// The dataset
+    /// The dataset.
     /// Data source: https:///github.com/plotly/datasets/blob/master/diabetes.csv
     fn dataset(&mut self) -> Dataset<f32, i32, ndarray::Dim<[usize; 1]>> {
         let file_path = ".data/input/diabetes.csv";
@@ -139,7 +142,7 @@ impl LinfaTrainLogisticRegression {
         Dataset::new(records, targets).with_feature_names(features)
     }
 
-    /// Trains the model
+    /// Trains the model.
     fn train(&mut self, max_iterations: u64) {
         println!("\n{}", "Training the model...".yellow().bold());
         let dataset = self.dataset();
@@ -162,7 +165,7 @@ impl LinfaTrainLogisticRegression {
         println!("\n{} {:?}", "Model saved, path:".yellow(), output.as_path());
     }
 
-    /// Loads the model
+    /// Loads the model.
     fn load_model(&mut self) {
         println!("\n{}", "Testing the model...".yellow().bold());
         let dataset = self.dataset();
@@ -181,5 +184,106 @@ impl LinfaTrainLogisticRegression {
             "Prediction test with the model success:".green().bold(),
             prediction
         );
+    }
+
+    /// Generates plots (2D Cartesian coordinate system).
+    fn generate_plots(&mut self) {
+        let dataset = self.dataset();
+        let records = dataset.records().to_owned();
+        let length = records.index_axis(Axis(0), 0).len();
+        let x_axis_column_index = length - 1;
+        for index in 0..x_axis_column_index {
+            let y_axis_column_index = index;
+            match self.plot(dataset.clone(), x_axis_column_index, y_axis_column_index) {
+                Ok(()) => {
+                    println!("Generated a plot {:?}", index);
+                }
+                Err(error) => {
+                    panic!("Plot error\n{:?}", error.source());
+                }
+            }
+        }
+    }
+
+    /// Generates a plot (2D Cartesian coordinate system).
+    fn plot(
+        &mut self,
+        dataset: Dataset<f32, i32, ndarray::Dim<[usize; 1]>>,
+        x_axis_column_index: usize,
+        y_axis_column_index: usize,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let records = dataset.records().to_owned();
+        let x_axis = records.column(x_axis_column_index);
+        let x_values = x_axis.to_owned().to_vec();
+        let x_range = x_values
+            .clone()
+            .into_iter()
+            .reduce(f32::min)
+            .unwrap()
+            .to_owned()
+            ..x_values
+                .clone()
+                .into_iter()
+                .reduce(f32::max)
+                .unwrap()
+                .to_owned();
+        let y_axis = records.column(y_axis_column_index);
+        let y_values = y_axis.to_owned().to_vec();
+        let y_range = y_values
+            .clone()
+            .into_iter()
+            .reduce(f32::min)
+            .unwrap()
+            .to_owned()
+            ..y_values
+                .clone()
+                .into_iter()
+                .reduce(f32::max)
+                .unwrap()
+                .to_owned();
+
+        let features = dataset.feature_names();
+        let x_feature_default = String::from("x");
+        let x_feature = features
+            .get(x_axis_column_index)
+            .unwrap_or(&x_feature_default);
+        let y_feature_default = String::from("y");
+        let y_feature = features
+            .get(y_axis_column_index)
+            .unwrap_or(&y_feature_default);
+        let caption = y_feature.to_owned() + " / " + x_feature;
+
+        let file_name =
+            y_feature.to_owned().to_lowercase() + "-by-" + x_feature.to_lowercase().as_str();
+        let plot_path = Path::new(".data")
+            .join("plots")
+            .join(file_name + "_diabetes_model.png");
+        let root = BitMapBackend::new(&plot_path, (1600, 1200)).into_drawing_area();
+        root.fill(&WHITE)?;
+
+        let mut chart = ChartBuilder::on(&root)
+            .caption(caption, ("sans-serif", 50).into_font())
+            .margin(10)
+            .x_label_area_size(30)
+            .y_label_area_size(30)
+            .build_cartesian_2d(x_range, y_range)?;
+
+        let binding = x_values.to_owned().to_vec();
+        let plot_data = binding.iter().enumerate().map(|(index, value)| {
+            (
+                value.to_owned(),
+                y_values.get(index).unwrap_or(&0.0).to_owned(),
+            )
+        });
+
+        chart.configure_mesh().draw()?;
+
+        chart.draw_series(PointSeries::of_element(plot_data, 2, &RED, &|c, s, st| {
+            EmptyElement::at(c) + Circle::new((0, 0), s, st.filled())
+        }))?;
+
+        root.present()?;
+
+        Ok(())
     }
 }
