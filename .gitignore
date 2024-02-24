@@ -23,6 +23,9 @@
 .data/output/*
 !.data/output/.gitkeep
 !.data/output/*.dvc
+!.data/plots
+.data/plots/*
+!.data/plots/.gitkeep
 
 # IDE - VSCode
 .vscode/*
