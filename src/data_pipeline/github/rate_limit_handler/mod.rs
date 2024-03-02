@@ -4,28 +4,11 @@ use colored::Colorize;
 use octorust::ClientError;
 use std::process::Command;
 
-/// Sleep for N seconds defined by the `wait_timeout` value.
-pub fn sleep_for(wait_timeout: i64) {
-    let p = GitHubRateLimitHandler::new();
-    p.sleep_for(wait_timeout)
-}
-
-/// Process GitHub API `ClientError` and derive the value of the `wait_timeout` variable.
-pub fn error_handler(error: ClientError) -> i64 {
-    let p = GitHubRateLimitHandler::new();
-    p.error_handler(error)
-}
-
-struct GitHubRateLimitHandler;
+pub struct GitHubRateLimitHandler;
 
 impl GitHubRateLimitHandler {
-    /// Program constructor.
-    fn new() -> GitHubRateLimitHandler {
-        GitHubRateLimitHandler
-    }
-
     /// Sleep for N seconds defined by the `wait_timeout` value.
-    fn sleep_for(&self, wait_timeout: i64) {
+    pub fn sleep_for(&self, wait_timeout: i64) {
         match Command::new("sleep").arg(wait_timeout.to_string()).spawn() {
             Ok(mut child) => {
                 println!("\n{}", "Can sleep".bold().green());
@@ -45,7 +28,7 @@ impl GitHubRateLimitHandler {
     }
 
     /// Process GitHub API `ClientError` and derive the value of the `wait_timeout` variable.
-    fn error_handler(&self, error: ClientError) -> i64 {
+    pub fn error_handler(&self, error: ClientError) -> i64 {
         let err = error.to_string();
 
         let rate_limit_regx =
