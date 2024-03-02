@@ -1,6 +1,6 @@
 [package]
 name = "rust-workspace"
-version = "0.8.0"
+version = "0.8.1"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -11,7 +11,7 @@ hyper = { version = "0.14", features = ["full"] }
 tokio = { version = "1.36.0", features = ["full"] }
 meval = "0.2"
 rand = "0.8.5"
-sysinfo = "0.30.5"
+sysinfo = "0.30.6"
 # ML Packages for Model Training
 linfa = "0.7.0"
 linfa-logistic = { version = "0.7.0", features = ["serde"] }
@@ -22,7 +22,7 @@ ciborium = "0.2.2"
 plotters = "0.3.5"
 # GitHub data pipeline
 octorust = "0.7.0"
-serde_json = "1.0.113"
+serde_json = "1.0.114"
 regex = "1.10.3"
 mongodb = { version = "2.8.1", default-features = false, features = ["tokio-sync"] }
 
