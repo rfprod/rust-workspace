@@ -1,11 +1,14 @@
 //! Open weather module.
 
 use colored::Colorize;
-use hyper::{body::Buf, Client, Uri};
+use http_body_util::{BodyExt, Empty};
+use hyper::{body::Bytes, Request, Uri};
+use hyper_util::rt::TokioIo;
 use std::{
     env::args,
     io::{self, Write},
 };
+use tokio::net::TcpStream;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
@@ -139,9 +142,7 @@ impl OpenWeather {
 
     /// Weather data request logic.
     async fn weather_request(&mut self, city: &str, api_key: &str) -> Result<()> {
-        let client = Client::new();
-
-        let mut uri_with_params = String::from("http:///api.openweathermap.org/data/2.5/weather");
+        let mut uri_with_params = String::from("http://api.openweathermap.org/data/2.5/weather");
         uri_with_params.push_str("?q=");
         uri_with_params.push_str(city);
         uri_with_params.push_str("&appid=");
@@ -151,13 +152,40 @@ impl OpenWeather {
 
         let uri = uri_with_params.as_str().parse::<Uri>()?;
 
-        let res = client.get(uri).await?;
+        let host = uri.host().expect("uri has no host");
+        let port = uri.port_u16().unwrap_or(80);
+        let addr = format!("{}:{}", host, port);
+        let stream = TcpStream::connect(addr).await?;
+        let io = TokioIo::new(stream);
 
-        println!("{}: {}", "Response".green(), res.status());
-        println!("{}: {:#?}\n", "Headers".green(), res.headers());
+        let (mut sender, conn) = hyper::client::conn::http1::handshake(io).await?;
+        tokio::task::spawn(async move {
+            if let Err(err) = conn.await {
+                println!("Connection failed: {:?}", err);
+            }
+        });
 
-        let body = hyper::body::aggregate(res).await?;
-        io::stdout().write_all(body.chunk())?;
+        let authority = uri.authority().unwrap().clone();
+
+        let path = uri.path();
+        let req = Request::builder()
+            .uri(path)
+            .header(hyper::header::HOST, authority.as_str())
+            .body(Empty::<Bytes>::new())?;
+
+        let mut res = sender.send_request(req).await?;
+
+        println!("Response: {}", res.status());
+        println!("Headers: {:#?}\n", res.headers());
+
+        // Stream the body, writing each chunk to stdout as we get it
+        // (instead of buffering and printing at the end).
+        while let Some(next) = res.frame().await {
+            let frame = next?;
+            if let Some(chunk) = frame.data_ref() {
+                io::stdout().write_all(chunk)?;
+            }
+        }
 
         println!("\n\n{}", "Done!".green().bold());
 
