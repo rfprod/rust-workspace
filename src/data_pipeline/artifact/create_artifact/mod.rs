@@ -49,10 +49,11 @@ impl ArtifactCreator {
         };
 
         let gpg_passphrase_env = env::var("GPG_PASSPHRASE");
-        let gpg_passphrase = match gpg_passphrase_env.unwrap().trim().parse::<String>() {
-            Ok(value) => value,
-            Err(_) => String::new(),
-        };
+        let gpg_passphrase = gpg_passphrase_env
+            .unwrap()
+            .trim()
+            .parse::<String>()
+            .unwrap_or_default();
 
         let encrypted_artifact_path = output_path.to_owned() + ".gpg";
         match Command::new("gpg")

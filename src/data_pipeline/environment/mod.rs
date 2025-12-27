@@ -93,10 +93,11 @@ impl DataPipelineEnvironment {
                 let split_key = split_pair.first();
                 let some_key = split_key.is_some();
                 let key = if some_key {
-                    match split_key.unwrap().trim().parse::<String>() {
-                        Ok(value) => value,
-                        Err(_) => String::new(),
-                    }
+                    split_key
+                        .unwrap()
+                        .trim()
+                        .parse::<String>()
+                        .unwrap_or_default()
                 } else {
                     String::new()
                 };

@@ -56,10 +56,11 @@ impl<'a> DataPipelineConfiguration<'a> {
     pub fn choose_context(&self, context_arg: Option<String>) -> usize {
         let is_some = context_arg.is_some();
         let mut context_arg_input = if is_some {
-            match context_arg.unwrap().trim().parse::<String>() {
-                Ok(value) => value,
-                Err(_) => String::new(),
-            }
+            context_arg
+                .unwrap()
+                .trim()
+                .parse::<String>()
+                .unwrap_or_default()
         } else {
             String::new()
         };
@@ -121,10 +122,11 @@ impl<'a> DataPipelineConfiguration<'a> {
     pub fn choose_collection(&self, collection_arg: Option<String>) -> usize {
         let is_some = collection_arg.is_some();
         let mut collection_arg_input = if is_some {
-            match collection_arg.unwrap().trim().parse::<String>() {
-                Ok(value) => value,
-                Err(_) => String::new(),
-            }
+            collection_arg
+                .unwrap()
+                .trim()
+                .parse::<String>()
+                .unwrap_or_default()
         } else {
             String::new()
         };
