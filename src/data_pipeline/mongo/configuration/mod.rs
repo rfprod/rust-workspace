@@ -4,7 +4,7 @@ use colored::Colorize;
 use mongodb::sync::{Client, Database};
 use std::env::{self};
 
-pub fn main(collections: [&str; 2]) -> MongoDbConfiguration {
+pub fn main(collections: [&'_ str; 2]) -> MongoDbConfiguration<'_> {
     MongoDbConfiguration::new(collections)
 }
 
@@ -18,7 +18,7 @@ pub struct MongoDbConfiguration<'a> {
 
 impl<'a> MongoDbConfiguration<'a> {
     /// Program constructor.
-    fn new(collections: [&'a str; 2]) -> MongoDbConfiguration {
+    fn new(collections: [&'a str; 2]) -> MongoDbConfiguration<'a> {
         MongoDbConfiguration { collections }
     }
 
@@ -26,10 +26,11 @@ impl<'a> MongoDbConfiguration<'a> {
     pub fn choose_collection(&self, collection: Option<String>) -> usize {
         let is_some = collection.is_some();
         let collection_input = if is_some {
-            match collection.unwrap().trim().parse::<String>() {
-                Ok(value) => value,
-                Err(_) => String::new(),
-            }
+            collection
+                .unwrap()
+                .trim()
+                .parse::<String>()
+                .unwrap_or_default()
         } else {
             String::new()
         };
@@ -48,10 +49,11 @@ impl<'a> MongoDbConfiguration<'a> {
     /// Connects to the MongoDB instance and returns the database reference.
     pub fn connect(&self) -> Database {
         let connection_url_env = env::var("MONGODB_CONNECTION_STRING");
-        let connection_url = match connection_url_env.unwrap().trim().parse::<String>() {
-            Ok(value) => value,
-            Err(_) => String::new(),
-        };
+        let connection_url = connection_url_env
+            .unwrap()
+            .trim()
+            .parse::<String>()
+            .unwrap_or_default();
 
         let client_connection = Client::with_uri_str(&connection_url);
         let client = match client_connection {
@@ -62,10 +64,11 @@ impl<'a> MongoDbConfiguration<'a> {
         };
 
         let db_name_env = env::var("MONGODB_DATABASE");
-        let db_name = match db_name_env.unwrap().trim().parse::<String>() {
-            Ok(value) => value,
-            Err(_) => String::new(),
-        };
+        let db_name = db_name_env
+            .unwrap()
+            .trim()
+            .parse::<String>()
+            .unwrap_or_default();
 
         let db = client.database(db_name.as_str());
 

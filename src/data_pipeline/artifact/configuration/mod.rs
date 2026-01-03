@@ -28,7 +28,7 @@ struct ArtifactConfiguration<'a> {
 
 impl<'a> ArtifactConfiguration<'a> {
     /// Program constructor.
-    fn new(contexts: [&'a str; 2]) -> ArtifactConfiguration {
+    fn new(contexts: [&'a str; 2]) -> ArtifactConfiguration<'a> {
         ArtifactConfiguration { contexts }
     }
 
@@ -36,10 +36,11 @@ impl<'a> ArtifactConfiguration<'a> {
     fn choose_context(&self, context: Option<String>) -> usize {
         let is_some = context.is_some();
         let context_input = if is_some {
-            match context.unwrap().trim().parse::<String>() {
-                Ok(value) => value,
-                Err(_) => String::new(),
-            }
+            context
+                .unwrap()
+                .trim()
+                .parse::<String>()
+                .unwrap_or_default()
         } else {
             String::new()
         };

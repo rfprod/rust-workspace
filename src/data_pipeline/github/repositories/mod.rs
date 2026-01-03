@@ -36,10 +36,11 @@ impl DataPipelineGitHubRepos {
         page: i64,
     ) -> Result<ReposFetchResult> {
         let token_env = env::var("GITHUB_TOKEN");
-        let token = match token_env.unwrap().trim().parse::<String>() {
-            Ok(value) => value,
-            Err(_) => String::new(),
-        };
+        let token = token_env
+            .unwrap()
+            .trim()
+            .parse::<String>()
+            .unwrap_or_default();
 
         let github = Client::new(String::from("user-agent-name"), Credentials::Token(token));
 

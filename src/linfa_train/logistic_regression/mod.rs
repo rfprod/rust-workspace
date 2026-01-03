@@ -7,8 +7,7 @@ use linfa::prelude::*;
 use linfa::Dataset;
 use linfa_logistic::FittedLogisticRegression;
 use linfa_logistic::LogisticRegression;
-use ndarray::Axis;
-use ndarray::{Array, Array1, Array2};
+use ndarray::{Array, Array1, ArrayBase, Axis, Dim, OwnedRepr};
 use plotters::prelude::*;
 use std::io::Read;
 use std::path::Path;
@@ -95,15 +94,20 @@ impl LinfaTrainLogisticRegression {
     }
 
     /// The dataset records.
-    fn records(&mut self, data: &[Vec<f32>], target_index: usize) -> Array2<f32> {
+    fn records(
+        &mut self,
+        data: &[Vec<f32>],
+        target_index: usize,
+    ) -> ArrayBase<OwnedRepr<f32>, Dim<[usize; 2]>> {
         let mut records: Vec<f32> = vec![];
         for record in data.iter() {
             records.extend_from_slice(&record[0..target_index]);
         }
 
         let result = Array::from(records)
-            .into_shape((data.len(), target_index))
-            .unwrap();
+            .to_shape((data.len(), target_index))
+            .unwrap()
+            .to_owned();
         let record_shape = result.shape();
         println!(
             "\n{} {:?} x {:?}",

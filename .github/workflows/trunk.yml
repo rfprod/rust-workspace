@@ -42,7 +42,10 @@ jobs:
 
       - name: Install rust
         if: ${{ steps.changes.outputs.workspace == 'true' }}
-        run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+        run: |
+          sudo apt-get update
+          sudo apt-get install libfontconfig1-dev
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
       - name: Install project dependencies
         if: ${{ steps.changes.outputs.workspace == 'true' }}

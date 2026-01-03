@@ -99,10 +99,11 @@ impl<'a> DataPipeline<'a> {
     fn execute(&mut self, search_term_arg: Option<String>, context: String, collection: String) {
         let is_some = search_term_arg.is_some();
         let search_term_arg_input = if is_some {
-            match search_term_arg.unwrap().trim().parse::<String>() {
-                Ok(value) => value,
-                Err(_) => String::new(),
-            }
+            search_term_arg
+                .unwrap()
+                .trim()
+                .parse::<String>()
+                .unwrap_or_default()
         } else {
             String::new()
         };
@@ -290,7 +291,7 @@ impl<'a> DataPipeline<'a> {
                 "\n{}: {:?}/{:?}",
                 "Progress/Total".green().bold(),
                 record_index,
-                records_len
+                fetch_result.total
             );
         }
     }

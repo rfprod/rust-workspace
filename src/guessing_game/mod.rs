@@ -1,7 +1,7 @@
 //! Guessing game module.
 
 use colored::Colorize;
-use rand::{thread_rng, Rng};
+use rand::{rng, Rng};
 use std::{cmp::Ordering, env::args, io};
 
 /// The entry point of the program.
@@ -58,9 +58,9 @@ impl GuessingGame {
             range_max
         );
 
-        let mut range = thread_rng();
+        let mut range = rng();
 
-        let secret_number: i32 = range.gen_range(range_min..range_max);
+        let secret_number: i32 = range.random_range(range_min..range_max);
 
         println!("{}: {}", "The secret number is".cyan(), secret_number);
 

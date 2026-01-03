@@ -63,20 +63,22 @@ impl OpenWeather {
 
         let city_is_some = city_arg.is_some();
         let mut city_arg_input = if city_is_some {
-            match city_arg.unwrap().trim().parse::<String>() {
-                Ok(value) => value,
-                Err(_) => String::new(),
-            }
+            city_arg
+                .unwrap()
+                .trim()
+                .parse::<String>()
+                .unwrap_or_default()
         } else {
             String::new()
         };
 
         let api_key_is_some = api_key_arg.is_some();
         let mut api_key_arg_input = if api_key_is_some {
-            match api_key_arg.unwrap().trim().parse::<String>() {
-                Ok(value) => value,
-                Err(_) => String::new(),
-            }
+            api_key_arg
+                .unwrap()
+                .trim()
+                .parse::<String>()
+                .unwrap_or_default()
         } else {
             String::new()
         };
