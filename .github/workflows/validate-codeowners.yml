@@ -6,7 +6,10 @@ on:
 
 defaults:
   run:
-    shell: bash
+    shell: bash --noprofile --norc -euo pipefail {0}
+
+env:
+  HISTFILE: ''
 
 concurrency:
   group: ${{ github.ref_name }}.${{ github.sha }}.codeowners-validator
@@ -18,10 +21,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
-
-      - name: Disable session history
-        uses: ./.github/actions/disable-session-history
+        uses: actions/checkout@v6
 
       - name: GitHub CODEOWNERS Validator
         uses: mszostok/codeowners-validator@v0.5.1

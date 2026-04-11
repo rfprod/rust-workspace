@@ -72,7 +72,7 @@ impl<'a> MongoDbConfiguration<'a> {
 
         let db = client.database(db_name.as_str());
 
-        match db.list_collection_names(None) {
+        match db.list_collection_names().run() {
             Ok(value) => {
                 for col in value.iter() {
                     println!("\n{}: {:?}", "Collection".bold().cyan(), col);

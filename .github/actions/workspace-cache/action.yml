@@ -33,7 +33,7 @@ runs:
         echo "::set-output name=rustcversion::$(rustc --version | sed -r s/\\s/-/g | sed -r s/[\(\)]\//g)";
 
     - name: Workspace cache
-      uses: actions/cache@v3
+      uses: actions/cache@v5
       id: workspace-cache
       with:
         path: |

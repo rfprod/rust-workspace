@@ -57,7 +57,7 @@ impl MongoDbReposCollection {
 
     fn execute(&self, collection: &str, json_data_dir: &str) {
         let mut exists = false;
-        match self.db.list_collection_names(None) {
+        match self.db.list_collection_names().run() {
             Ok(value) => {
                 for col in value.iter() {
                     if collection.eq(col) {
@@ -120,7 +120,7 @@ impl MongoDbReposCollection {
 
         let collection_ref = self.db.collection::<Repository>(collection);
 
-        match collection_ref.drop(None) {
+        match collection_ref.drop().run() {
             Ok(_) => {
                 println!("\n{}: {:?}", "Dropped".bold().green(), collection);
             }
@@ -135,7 +135,7 @@ impl MongoDbReposCollection {
         };
 
         for batch in docs {
-            match collection_ref.insert_many(batch, None) {
+            match collection_ref.insert_many(batch).run() {
                 Ok(_) => {
                     println!("\n{}: {:?}", "Inserted in".green(), collection);
                 }
@@ -168,7 +168,11 @@ impl MongoDbReposCollection {
                     let mut options = FindOneAndUpdateOptions::default();
                     options.upsert = Some(true);
                     let update = doc! { "$set": document };
-                    match collection_ref.find_one_and_update(filter, update, options) {
+                    match collection_ref
+                        .find_one_and_update(filter, update)
+                        .with_options(options)
+                        .run()
+                    {
                         Ok(_) => {
                             println!("{}: {:?}\n{:?}", "Updated".bold().green(), collection, url);
                         }

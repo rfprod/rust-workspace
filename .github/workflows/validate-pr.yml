@@ -6,7 +6,10 @@ on:
 
 defaults:
   run:
-    shell: bash
+    shell: bash --noprofile --norc -euo pipefail {0}
+
+env:
+  HISTFILE: ''
 
 concurrency:
   group: ${{ github.head_ref }}.${{ github.sha }}.validate-pr
@@ -36,19 +39,20 @@ jobs:
             shelltools:
               - 'tools/shell/**'
 
-      - name: Disable session history
-        uses: ./.github/actions/disable-session-history
-
       - name: Workspace cache
         id: workspace-cache
         uses: ./.github/actions/workspace-cache
 
       - name: Validate the commit messages
+        if: github.event.pull_request.user.login != 'dependabot[bot]'
         run: |
-          sudo pip3 install -U Commitizen
+          python3 -m venv .venv
+          source .venv/bin/activate
+          pip install -U pip Commitizen
           git checkout -b premerge
           git fetch origin main:main
           cz check --rev-range main..premerge
+          deactivate
 
       - name: Install rust
         if: steps.changes.outputs.workspace == 'true'
