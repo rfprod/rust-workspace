@@ -1,7 +1,7 @@
 //! Guessing game module.
 
 use colored::Colorize;
-use rand::{rng, Rng};
+use rand::{rng, RngExt};
 use std::{cmp::Ordering, env::args, io};
 
 /// The entry point of the program.

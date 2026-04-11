@@ -6,7 +6,10 @@ on:
 
 defaults:
   run:
-    shell: bash
+    shell: bash --noprofile --norc -euo pipefail {0}
+
+env:
+  HISTFILE: ''
 
 concurrency:
   group: ${{ github.ref_name }}.${{ github.sha }}.trunk
@@ -18,7 +21,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Detect changes
         uses: dorny/paths-filter@v2
@@ -33,42 +36,39 @@ jobs:
             shelltools:
               - 'tools/shell/**'
 
-      - name: Disable session history
-        uses: ./.github/actions/disable-session-history
-
       - name: Workspace cache
         id: workspace-cache
         uses: ./.github/actions/workspace-cache
 
       - name: Install rust
-        if: ${{ steps.changes.outputs.workspace == 'true' }}
+        if: steps.changes.outputs.workspace == 'true'
         run: |
           sudo apt-get update
           sudo apt-get install libfontconfig1-dev
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
       - name: Install project dependencies
-        if: ${{ steps.changes.outputs.workspace == 'true' }}
+        if: steps.changes.outputs.workspace == 'true'
         run: cargo install --path . --force
 
       - name: Check formatting
-        if: ${{ steps.changes.outputs.workspace == 'true' }}
+        if: steps.changes.outputs.workspace == 'true'
         run: cargo fmt -- --check
 
       - name: Lint sources
-        if: ${{ steps.changes.outputs.workspace == 'true' }}
+        if: steps.changes.outputs.workspace == 'true'
         run: cargo clippy -- -D warnings
 
       - name: Unit test
-        if: ${{ steps.changes.outputs.workspace == 'true' }}
+        if: steps.changes.outputs.workspace == 'true'
         run: cargo test
 
       - name: Build test
-        if: ${{ steps.changes.outputs.workspace == 'true' }}
+        if: steps.changes.outputs.workspace == 'true'
         run: cargo build
 
       - name: Lint shell
-        if: ${{ steps.changes.outputs.workspace == 'true' }}
+        if: steps.changes.outputs.workspace == 'true'
         run: |
           sudo apt install shellcheck
           shellcheck tools/shell/*.sh tools/shell/utils/*.sh

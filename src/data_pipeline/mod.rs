@@ -315,8 +315,7 @@ impl<'a> DataPipeline<'a> {
 
         let mut docs: Vec<Repository> = vec![];
 
-        let dir_entries = dir_content.enumerate();
-        for (_i, dir_entries_result) in dir_entries {
+        for dir_entries_result in dir_content {
             let Ok(dir_entry) = dir_entries_result else {
                 panic!("\n{}: {:?}", "Can't get dir entry", dir_entries_result);
             };
