@@ -26,8 +26,8 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Workspace changed
-        id: workspace-changed
+      - name: Srouce changed
+        id: src-changed
         run: |
           bash ./tools/shell/actions/detect-changes.sh \
             --pattern '^src/.*$' \
@@ -38,7 +38,19 @@ jobs:
             echo "change=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Workspace changed
+      - name: Dependencies changed
+        id: deps-changed
+        run: |
+          bash ./tools/shell/actions/detect-changes.sh \
+            --pattern '^Cargo.(toml|lock)$' \
+            --compare-with origin/${{ github.base_ref }}
+          if [[ -f "$GITHUB_OUTPUT" ]] && grep -q "changed_files" "$GITHUB_OUTPUT"; then
+            echo "change=true" >> $GITHUB_OUTPUT
+          else
+            echo "change=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Shell tools changed
         id: shelltools-changed
         run: |
           bash ./tools/shell/actions/detect-changes.sh \
@@ -65,30 +77,30 @@ jobs:
           deactivate
 
       - name: Install rust
-        if: steps.workspace-changed.outputs.change == 'true'
+        if: ${{ steps.src-changed.outputs.change == 'true' || steps.deps-changed.outputs.change == 'true' }}
         run: |
           sudo apt-get update
           sudo apt-get install libfontconfig1-dev
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
       - name: Install project dependencies
-        if: steps.workspace-changed.outputs.change == 'true'
+        if: ${{ steps.src-changed.outputs.change == 'true' || steps.deps-changed.outputs.change == 'true' }}
         run: cargo install --path . --force
 
       - name: Check formatting
-        if: steps.workspace-changed.outputs.change == 'true'
+        if: ${{ steps.src-changed.outputs.change == 'true' || steps.deps-changed.outputs.change == 'true' }}
         run: cargo fmt -- --check
 
       - name: Lint sources
-        if: steps.workspace-changed.outputs.change == 'true'
+        if: ${{ steps.src-changed.outputs.change == 'true' || steps.deps-changed.outputs.change == 'true' }}
         run: cargo clippy -- -D warnings
 
       - name: Unit test
-        if: steps.workspace-changed.outputs.change == 'true'
+        if: ${{ steps.src-changed.outputs.change == 'true' || steps.deps-changed.outputs.change == 'true' }}
         run: cargo test
 
       - name: Build test
-        if: steps.workspace-changed.outputs.change == 'true'
+        if: ${{ steps.src-changed.outputs.change == 'true' || steps.deps-changed.outputs.change == 'true' }}
         run: cargo build
 
       - name: Lint shell

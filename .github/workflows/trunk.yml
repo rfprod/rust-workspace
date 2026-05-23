@@ -23,52 +23,74 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v6
 
-      - name: Detect changes
-        uses: dorny/paths-filter@v2
-        id: changes
-        with:
-          filters: |
-            workspace:
-              - '.github/workflows/pr-validation.yml'
-              - 'src/**'
-              - 'Cargo.lock'
-              - 'Cargo.toml'
-            shelltools:
-              - 'tools/shell/**'
+      - name: Srouce changed
+        id: src-changed
+        run: |
+          bash ./tools/shell/actions/detect-changes.sh \
+            --pattern '^src/.*$' \
+            --compare-with HEAD~1
+          if [[ -f "$GITHUB_OUTPUT" ]] && grep -q "changed_files" "$GITHUB_OUTPUT"; then
+            echo "change=true" >> $GITHUB_OUTPUT
+          else
+            echo "change=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Dependencies changed
+        id: deps-changed
+        run: |
+          bash ./tools/shell/actions/detect-changes.sh \
+            --pattern '^Cargo.(toml|lock)$' \
+            --compare-with HEAD~1
+          if [[ -f "$GITHUB_OUTPUT" ]] && grep -q "changed_files" "$GITHUB_OUTPUT"; then
+            echo "change=true" >> $GITHUB_OUTPUT
+          else
+            echo "change=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Shell tools changed
+        id: shelltools-changed
+        run: |
+          bash ./tools/shell/actions/detect-changes.sh \
+            --pattern '^tools/shell/.*$' \
+            --compare-with HEAD~1
+          if [[ -f "$GITHUB_OUTPUT" ]] && grep -q "changed_files" "$GITHUB_OUTPUT"; then
+            echo "change=true" >> $GITHUB_OUTPUT
+          else
+            echo "change=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Workspace cache
-        id: workspace-cache
         uses: ./.github/actions/workspace-cache
 
       - name: Install rust
-        if: steps.changes.outputs.workspace == 'true'
+        if: ${{ steps.src-changed.outputs.change == 'true' || steps.deps-changed.outputs.change == 'true' }}
         run: |
           sudo apt-get update
           sudo apt-get install libfontconfig1-dev
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
       - name: Install project dependencies
-        if: steps.changes.outputs.workspace == 'true'
+        if: ${{ steps.src-changed.outputs.change == 'true' || steps.deps-changed.outputs.change == 'true' }}
         run: cargo install --path . --force
 
       - name: Check formatting
-        if: steps.changes.outputs.workspace == 'true'
+        if: ${{ steps.src-changed.outputs.change == 'true' || steps.deps-changed.outputs.change == 'true' }}
         run: cargo fmt -- --check
 
       - name: Lint sources
-        if: steps.changes.outputs.workspace == 'true'
+        if: ${{ steps.src-changed.outputs.change == 'true' || steps.deps-changed.outputs.change == 'true' }}
         run: cargo clippy -- -D warnings
 
       - name: Unit test
-        if: steps.changes.outputs.workspace == 'true'
+        if: ${{ steps.src-changed.outputs.change == 'true' || steps.deps-changed.outputs.change == 'true' }}
         run: cargo test
 
       - name: Build test
-        if: steps.changes.outputs.workspace == 'true'
+        if: ${{ steps.src-changed.outputs.change == 'true' || steps.deps-changed.outputs.change == 'true' }}
         run: cargo build
 
       - name: Lint shell
-        if: steps.changes.outputs.workspace == 'true'
+        if: steps.shelltools-changed.outputs.change == 'true'
         run: |
           sudo apt install shellcheck
           shellcheck tools/shell/*.sh tools/shell/utils/*.sh
