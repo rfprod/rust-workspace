@@ -3,10 +3,20 @@
 use colored::Colorize;
 use std::{cmp::Ordering, env::args, io};
 
+/// Supported collections.
+pub type Collections<'a> = [&'a str; 2];
+/// Supported collections.
+pub const COLLECTIONS: Collections = ["repos", "workflows"];
+
+/// Supported contexts.
+pub type Contexts<'a> = [&'a str; 2];
+/// Supported contexts.
+pub const CONTEXTS: Contexts = ["Create artifact", "Restore artifact"];
+
 /// The entry point of the program.
 pub fn main<'a>(
-    contexts: [&'a str; 2],
-    collections: [&'a str; 2],
+    contexts: Contexts<'a>,
+    collections: Collections<'a>,
 ) -> DataPipelineConfiguration<'a> {
     DataPipelineConfiguration::new(contexts, collections)
 }
@@ -19,13 +29,13 @@ pub struct InuputArguments {
 }
 
 pub struct DataPipelineConfiguration<'a> {
-    contexts: [&'a str; 2],
-    collections: [&'a str; 2],
+    contexts: Contexts<'a>,
+    collections: Collections<'a>,
 }
 
 impl<'a> DataPipelineConfiguration<'a> {
     /// Program constructor.
-    fn new(contexts: [&'a str; 2], collections: [&'a str; 2]) -> DataPipelineConfiguration<'a> {
+    fn new(contexts: Contexts<'a>, collections: Collections<'a>) -> DataPipelineConfiguration<'a> {
         DataPipelineConfiguration {
             contexts,
             collections,

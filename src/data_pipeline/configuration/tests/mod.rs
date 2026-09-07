@@ -1,6 +1,7 @@
 mod data_pipeline_configuration {
     use crate::data_pipeline::{
-        artifact::CONTEXTS, configuration::DataPipelineConfiguration, mongo::COLLECTIONS,
+        configuration::DataPipelineConfiguration, configuration::COLLECTIONS,
+        configuration::CONTEXTS,
     };
 
     #[test]

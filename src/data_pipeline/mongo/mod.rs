@@ -2,6 +2,8 @@
 
 use colored::Colorize;
 
+use crate::data_pipeline::configuration::Collections;
+
 mod configuration;
 mod repos_collection;
 mod workflows_collection;
@@ -10,11 +12,6 @@ mod workflows_collection;
 pub fn main(collections: Collections, collection_arg: Option<String>) {
     DataPipelineMongoDb::new(collections, collection_arg);
 }
-
-/// Supported collections.
-pub type Collections<'a> = [&'a str; 2];
-/// Supported collections.
-pub const COLLECTIONS: Collections = ["repos", "workflows"];
 
 struct DataPipelineMongoDb<'a> {
     collections: Collections<'a>,
