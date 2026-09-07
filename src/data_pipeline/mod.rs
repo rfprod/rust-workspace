@@ -34,6 +34,7 @@ struct DataPipeline<'a> {
     collections: mongo::Collections<'a>,
     configuration: configuration::DataPipelineConfiguration<'a>,
     github: github::DataPipelineGitHub,
+    runtime: tokio::runtime::Runtime,
 }
 
 impl<'a> DataPipeline<'a> {
@@ -44,11 +45,16 @@ impl<'a> DataPipeline<'a> {
         let configuration: configuration::DataPipelineConfiguration =
             configuration::main(contexts, collections);
         let github: github::DataPipelineGitHub = github::main();
+        let runtime = tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .unwrap();
         let mut program = DataPipeline {
             contexts,
             collections,
             configuration,
             github,
+            runtime,
         };
         program.init();
         program
@@ -162,12 +168,7 @@ impl<'a> DataPipeline<'a> {
                 retry: false,
             };
 
-            let runtime = tokio::runtime::Builder::new_current_thread()
-                .enable_all()
-                .build()
-                .unwrap();
-
-            runtime.block_on(async {
+            self.runtime.block_on(async {
                 let result = self
                     .github
                     .repos_request(q, SearchReposSort::Noop, Order::Asc, per_page, page)
@@ -236,11 +237,6 @@ impl<'a> DataPipeline<'a> {
                 retry: false,
             };
 
-            let runtime = tokio::runtime::Builder::new_current_thread()
-                .enable_all()
-                .build()
-                .unwrap();
-
             let owner = &record.owner.clone().unwrap().login;
             println!("owner {:?}", owner);
             let repo = &record.name;
@@ -248,7 +244,7 @@ impl<'a> DataPipeline<'a> {
             let branch = &record.default_branch;
             println!("branch {:?}", branch);
 
-            runtime.block_on(async {
+            self.runtime.block_on(async {
                 let result = self
                     .github
                     .workflow_runs_request(owner, repo, branch, "", 100, 1)
