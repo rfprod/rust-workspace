@@ -30,8 +30,8 @@ pub fn main() {
 }
 
 struct DataPipeline<'a> {
-    contexts: artifact::Contexts<'a>,
-    collections: mongo::Collections<'a>,
+    contexts: configuration::Contexts<'a>,
+    collections: configuration::Collections<'a>,
     configuration: configuration::DataPipelineConfiguration<'a>,
     github: github::DataPipelineGitHub,
     runtime: tokio::runtime::Runtime,
@@ -40,8 +40,8 @@ struct DataPipeline<'a> {
 impl<'a> DataPipeline<'a> {
     /// Program constructor.
     fn new() -> DataPipeline<'a> {
-        let contexts: artifact::Contexts = artifact::CONTEXTS;
-        let collections: mongo::Collections = mongo::COLLECTIONS;
+        let contexts: configuration::Contexts = configuration::CONTEXTS;
+        let collections: configuration::Collections = configuration::COLLECTIONS;
         let configuration: configuration::DataPipelineConfiguration =
             configuration::main(contexts, collections);
         let github: github::DataPipelineGitHub = github::main();

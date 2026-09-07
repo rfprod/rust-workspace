@@ -1,5 +1,6 @@
 mod artifact_configuration {
-    use crate::data_pipeline::artifact::{configuration::ArtifactConfiguration, CONTEXTS};
+    use crate::data_pipeline::artifact::configuration::ArtifactConfiguration;
+    use crate::data_pipeline::configuration::CONTEXTS;
 
     #[test]
     fn choose_context() {

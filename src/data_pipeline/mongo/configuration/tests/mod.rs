@@ -1,5 +1,6 @@
 mod mongo_db_configuration {
-    use crate::data_pipeline::mongo::{configuration::MongoDbConfiguration, COLLECTIONS};
+    use crate::data_pipeline::configuration::COLLECTIONS;
+    use crate::data_pipeline::mongo::configuration::MongoDbConfiguration;
 
     #[test]
     fn collections() {

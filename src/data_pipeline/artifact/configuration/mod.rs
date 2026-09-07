@@ -3,14 +3,16 @@
 use colored::Colorize;
 use std::env::{self};
 
+use crate::data_pipeline::configuration::Contexts;
+
 /// Artifact module context configuration.
-pub fn choose_context(contexts: [&str; 2], context: Option<String>) -> usize {
+pub fn choose_context(contexts: Contexts, context: Option<String>) -> usize {
     let p = ArtifactConfiguration::new(contexts);
     p.choose_context(context)
 }
 
 /// Artifact module file system configuration.
-pub fn fs_config(contexts: [&str; 2], collection: String) -> ArtifactFileConfig {
+pub fn fs_config(contexts: Contexts, collection: String) -> ArtifactFileConfig {
     let p = ArtifactConfiguration::new(contexts);
     p.fs_config(collection)
 }
@@ -23,12 +25,12 @@ pub struct ArtifactFileConfig {
 }
 
 struct ArtifactConfiguration<'a> {
-    contexts: [&'a str; 2],
+    contexts: Contexts<'a>,
 }
 
 impl<'a> ArtifactConfiguration<'a> {
     /// Program constructor.
-    fn new(contexts: [&'a str; 2]) -> ArtifactConfiguration<'a> {
+    fn new(contexts: Contexts<'a>) -> ArtifactConfiguration<'a> {
         ArtifactConfiguration { contexts }
     }
 

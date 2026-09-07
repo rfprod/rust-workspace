@@ -4,7 +4,9 @@ use colored::Colorize;
 use mongodb::sync::{Client, Database};
 use std::env::{self};
 
-pub fn main(collections: [&'_ str; 2]) -> MongoDbConfiguration<'_> {
+use crate::data_pipeline::configuration::Collections;
+
+pub fn main(collections: Collections<'_>) -> MongoDbConfiguration<'_> {
     MongoDbConfiguration::new(collections)
 }
 
@@ -13,12 +15,12 @@ pub struct MongoDbFileConfig {
 }
 
 pub struct MongoDbConfiguration<'a> {
-    collections: [&'a str; 2],
+    collections: Collections<'a>,
 }
 
 impl<'a> MongoDbConfiguration<'a> {
     /// Program constructor.
-    fn new(collections: [&'a str; 2]) -> MongoDbConfiguration<'a> {
+    fn new(collections: Collections<'a>) -> MongoDbConfiguration<'a> {
         MongoDbConfiguration { collections }
     }
 
