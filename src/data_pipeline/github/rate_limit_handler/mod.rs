@@ -51,7 +51,7 @@ impl GitHubRateLimitHandler {
                 println!(
                     "{}\n{:?}",
                     "It looks like the root cause of the error is not a rate limit hit.".cyan(),
-                    &err
+                    err
                 );
                 0
             }
