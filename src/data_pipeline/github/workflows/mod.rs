@@ -95,7 +95,7 @@ impl DataPipelineGitHubWorkflows {
 
         println!("{}: {}", "Response".green(), res.status);
         println!("{}: {:#?}\n", "Headers".green(), res.headers);
-        // println!("{}: {:#?}\n", "Body".green(), res.body);
+        println!("{}: {:#?}\n", "Body".green(), res.body);
 
         println!("\n\n{}", "Done!".green().bold());
 
