@@ -1,4 +1,4 @@
-//! Data pipeline configuration module.
+//! Data Pipeline Configuration module.
 
 use colored::Colorize;
 use std::{cmp::Ordering, env::args, io};
@@ -26,6 +26,7 @@ pub struct InuputArguments {
     pub(crate) context: Option<String>,
     pub(crate) collection: Option<String>,
     pub(crate) search_term: Option<String>,
+    pub(crate) force_restart: bool,
 }
 
 pub struct DataPipelineConfiguration<'a> {
@@ -54,11 +55,14 @@ impl<'a> DataPipelineConfiguration<'a> {
         println!("- collection: {:?}", collection);
         let search_term = arguments.get(4).cloned();
         println!("- search_term: {:?}", search_term);
+        let force_restart = arguments.get(5).cloned().is_some();
+        println!("- search_term: {:?}", force_restart);
 
         InuputArguments {
             context,
             collection,
             search_term,
+            force_restart,
         }
     }
 

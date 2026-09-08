@@ -1,4 +1,4 @@
-//! Data pipeline module.
+//! Data Pipeline module.
 //!
 //! Environment variables should be placed in the `.env` file:
 //!
@@ -19,6 +19,7 @@ use std::{
 };
 
 mod artifact;
+mod checkpoint;
 mod configuration;
 mod environment;
 mod github;
@@ -30,6 +31,7 @@ pub fn main() {
 }
 
 struct DataPipeline<'a> {
+    checkpoint: checkpoint::DataPipelineCheckpoint,
     contexts: configuration::Contexts<'a>,
     collections: configuration::Collections<'a>,
     configuration: configuration::DataPipelineConfiguration<'a>,
@@ -40,6 +42,7 @@ struct DataPipeline<'a> {
 impl<'a> DataPipeline<'a> {
     /// Program constructor.
     fn new() -> DataPipeline<'a> {
+        let checkpoint: checkpoint::DataPipelineCheckpoint = checkpoint::main();
         let contexts: configuration::Contexts = configuration::CONTEXTS;
         let collections: configuration::Collections = configuration::COLLECTIONS;
         let configuration: configuration::DataPipelineConfiguration =
@@ -50,6 +53,7 @@ impl<'a> DataPipeline<'a> {
             .build()
             .unwrap();
         let mut program = DataPipeline {
+            checkpoint,
             contexts,
             collections,
             configuration,
@@ -81,7 +85,12 @@ impl<'a> DataPipeline<'a> {
         let collection = self.collections[collection_index];
 
         match context_index {
-            0 => self.execute(args.search_term, context.to_owned(), collection.to_owned()),
+            0 => self.execute(
+                args.search_term,
+                args.force_restart,
+                context.to_owned(),
+                collection.to_owned(),
+            ),
             1 => {
                 artifact::main(
                     self.contexts,
@@ -101,8 +110,24 @@ impl<'a> DataPipeline<'a> {
         }
     }
 
+    /// Clears a checkpoint for the operation.
+    fn force_restart(&mut self, operation: &str, context: &str) {
+        let clear_result = self.checkpoint.clear_checkpoint(operation, context);
+        if clear_result.is_ok() {
+            println!("Cleared {:?} checkpoint", operation);
+        } else {
+            println!("Error clearing {:?} checkpoint", operation);
+        }
+    }
+
     /// The data pipeline program for the provided search_term.
-    fn execute(&mut self, search_term_arg: Option<String>, context: String, collection: String) {
+    fn execute(
+        &mut self,
+        search_term_arg: Option<String>,
+        force_restart: bool,
+        context: String,
+        collection: String,
+    ) {
         let is_some = search_term_arg.is_some();
         let search_term_arg_input = if is_some {
             search_term_arg
@@ -132,8 +157,20 @@ impl<'a> DataPipeline<'a> {
         let col = collection.as_str();
 
         match col {
-            "repos" => self.execute_repos_collector(search_term_input.clone()),
-            "workflows" => self.execute_workflows_collector(),
+            "repos" => {
+                let operation = "repos_collector";
+                if force_restart {
+                    self.force_restart(operation, &context);
+                }
+                self.execute_repos_collector(operation, search_term_input.clone());
+            }
+            "workflows" => {
+                let operation = "workflows_collector";
+                if force_restart {
+                    self.force_restart(operation, &context);
+                }
+                self.execute_workflows_collector(operation);
+            }
             _ => panic!(
                 "\n{}: {:?}",
                 "Nothing to execute. The collection is not supported"
@@ -148,19 +185,33 @@ impl<'a> DataPipeline<'a> {
     }
 
     /// Collects repository metadata.
-    fn execute_repos_collector(&self, search_term_input: String) {
-        let mut page = 0;
+    fn execute_repos_collector(&mut self, operation: &str, search_term_input: String) {
+        let search_term = search_term_input.as_str().trim().to_string();
+
+        println!("\n{}: {}", "Your search term".cyan(), search_term);
+
+        let mut checkpoint_state = self
+            .checkpoint
+            .load_checkpoint(operation, &search_term)
+            .unwrap_or_else(|| {
+                checkpoint::DataPipelineCheckpoint::new_state(
+                    operation.to_string(),
+                    0,
+                    5,
+                    None,
+                    0,
+                    chrono::Local::now().to_rfc3339(),
+                    search_term.clone(),
+                )
+            });
+
+        let query_string =
+            "  in:name in:description in:readme user:".to_string() + search_term.as_str();
+        let q = query_string.as_str();
+        // let per_page = 5;
 
         loop {
-            let search_term = search_term_input.as_str().trim().to_string();
-
-            println!("\n{}: {}", "Your search term".cyan(), search_term);
-
-            let query_string =
-                "  in:name in:description in:readme user:".to_string() + search_term.as_str();
-            let q = query_string.as_str();
-            let per_page = 5;
-            page += 1;
+            let page = checkpoint_state.position + 1;
 
             let mut fetch_result = github::ReposFetchResult {
                 items: Vec::<RepoSearchResultItem>::new(),
@@ -171,13 +222,17 @@ impl<'a> DataPipeline<'a> {
             self.runtime.block_on(async {
                 let result = self
                     .github
-                    .repos_request(q, SearchReposSort::Noop, Order::Asc, per_page, page)
+                    .repos_request(
+                        q,
+                        SearchReposSort::Noop,
+                        Order::Asc,
+                        checkpoint_state.per_page,
+                        page,
+                    )
                     .await;
                 fetch_result = match result {
                     Ok(data) => {
-                        if data.retry {
-                            page -= 1;
-                        } else {
+                        if !data.retry {
                             let cwd = env::current_dir().unwrap();
                             println!("The current directory is {}", cwd.display());
                             let base_path = cwd.display().to_string()
@@ -188,6 +243,17 @@ impl<'a> DataPipeline<'a> {
                                     base_path + "/github-repos-" + &page.to_string() + ".json";
                                 let file = File::create(path).unwrap();
                                 let _result = serde_json::to_writer_pretty(file, &data.items);
+                            }
+
+                            // Update and save checkpoint
+                            checkpoint_state.position = page;
+                            checkpoint_state.completed_count +=
+                                i64::try_from(data.items.len()).unwrap();
+                            checkpoint_state.total_items = Some(data.total);
+                            checkpoint_state.last_updated = chrono::Local::now().to_rfc3339();
+
+                            if let Err(e) = self.checkpoint.save_checkpoint(&checkpoint_state) {
+                                eprintln!("Failed to save checkpoint: {:?}", e);
                             }
                         }
 
@@ -206,7 +272,7 @@ impl<'a> DataPipeline<'a> {
                 };
             });
 
-            let progress = page * per_page;
+            let progress = checkpoint_state.completed_count;
             println!(
                 "\n{}: {:?}/{:?}",
                 "Progress/Total".green().bold(),
@@ -218,22 +284,43 @@ impl<'a> DataPipeline<'a> {
                 continue;
             } else {
                 println!("\n{}", "Download complete".green().bold());
+                self.checkpoint
+                    .clear_checkpoint(operation, &search_term)
+                    .ok();
                 break;
             }
         }
     }
 
     /// Collects repository workflow metadata.
-    fn execute_workflows_collector(&self) {
+    fn execute_workflows_collector(&mut self, operation: &str) {
+        let context = "workflows".to_string();
+        let mut checkpoint_state = self
+            .checkpoint
+            .load_checkpoint(operation, &context)
+            .unwrap_or_else(|| {
+                checkpoint::DataPipelineCheckpoint::new_state(
+                    operation.to_string(),
+                    0,
+                    100,
+                    None,
+                    0,
+                    chrono::Local::now().to_rfc3339(),
+                    context.to_string(),
+                )
+            });
+
         let records = self.collect_documents();
-        let mut record_index = 0;
-        let records_len = records.len();
+        let mut record_index = checkpoint_state.position;
+        let records_len = i64::try_from(records.len()).unwrap();
+
+        let mut workflows_len = 0;
 
         while record_index < records_len {
-            let record = &records[record_index];
+            let record = &records[record_index as usize];
             let mut fetch_result = github::WorkflowRunsFetchResult {
                 items: Vec::<WorkflowRun>::new(),
-                total: 0,
+                total: records_len,
                 retry: false,
             };
 
@@ -247,7 +334,7 @@ impl<'a> DataPipeline<'a> {
             self.runtime.block_on(async {
                 let result = self
                     .github
-                    .workflow_runs_request(owner, repo, branch, "", 100, 1)
+                    .workflow_runs_request(owner, repo, branch, "", checkpoint_state.per_page, 1)
                     .await;
                 fetch_result = match result {
                     Ok(data) => {
@@ -266,6 +353,19 @@ impl<'a> DataPipeline<'a> {
                                     let _result = serde_json::to_writer_pretty(file, &data.items);
                                 }
                             }
+
+                            workflows_len += data.total;
+
+                            // Update checkpoint on successful completion
+                            checkpoint_state.position = record_index + 1;
+                            checkpoint_state.completed_count += 1;
+                            checkpoint_state.total_items = Some(workflows_len);
+                            checkpoint_state.last_updated = chrono::Local::now().to_rfc3339();
+
+                            if let Err(e) = self.checkpoint.save_checkpoint(&checkpoint_state) {
+                                eprintln!("Failed to save checkpoint: {:?}", e);
+                            }
+
                             record_index += 1;
                         }
                         data
@@ -284,12 +384,16 @@ impl<'a> DataPipeline<'a> {
             });
 
             println!(
-                "\n{}: {:?}/{:?}",
+                "\n{}: {:?}/{:?} (Workflows: {:?})",
                 "Progress/Total".green().bold(),
                 record_index,
-                fetch_result.total
+                records_len,
+                workflows_len
             );
         }
+
+        // Clear checkpoint on completion
+        self.checkpoint.clear_checkpoint(operation, &context).ok();
     }
 
     /// Collects repository records for the repository workflow collector.
