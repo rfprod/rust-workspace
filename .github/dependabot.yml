@@ -1,0 +1,55 @@
+version: 2
+updates:
+  - package-ecosystem: 'github-actions'
+    directory: '/.github/actions'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '04:00'
+    groups:
+      all-actions:
+        patterns:
+          - '*'
+    commit-message:
+      prefix: 'ci'
+      include: 'scope'
+    open-pull-requests-limit: 1
+    labels:
+      - 'CI/CD'
+      - 'Dependencies'
+      - 'Maintenance'
+  - package-ecosystem: 'github-actions'
+    directory: '/.github/workflows'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '04:00'
+    groups:
+      all-actions:
+        patterns:
+          - '*'
+    commit-message:
+      prefix: 'ci'
+      include: 'scope'
+    open-pull-requests-limit: 1
+    labels:
+      - 'CI/CD'
+      - 'Dependencies'
+      - 'Maintenance'
+  - package-ecosystem: 'cargo'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '04:00'
+    groups:
+      all-containers:
+        patterns:
+          - '*'
+    commit-message:
+      prefix: 'build'
+      include: 'scope'
+    open-pull-requests-limit: 1
+    labels:
+      - 'Dependencies'
+      - 'Maintenance'
