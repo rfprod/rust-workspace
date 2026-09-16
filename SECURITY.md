@@ -10,7 +10,7 @@ cargo update
 
 ### Automated (CI)
 
-The dependencies audit procedure should be automated by leveraging tools like [Dependabot](https://github.com/dependabot), or [GitHub Actions](https://github.com/features/actions) in conjunction with [Snyk](https://snyk.io/) and similar tools.
+The dependencies audit procedure should be automated by leveraging tools like [Dependabot](https://github.com/dependabot), or [GitHub Actions](https://github.com/features/actions) in conjunction with similar tools.
 
 ## Code scanning
 
