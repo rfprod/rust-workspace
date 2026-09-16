@@ -1,6 +1,6 @@
 # Rust workspace
 
-Rust workspace with workflow automation.
+A reusable Rust workspace starter for developers building maintainable applications with automated GitHub Actions CI, conventional commits, cross-platform tooling, data pipelines, and machine-learning experiments.
 
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 
