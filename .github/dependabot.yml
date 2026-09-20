@@ -43,9 +43,11 @@ updates:
       day: 'monday'
       time: '04:00'
     groups:
-      all-containers:
+      all-crates:
         patterns:
           - '*'
+    ignore:
+      - dependency-name: ndarray
     commit-message:
       prefix: 'build'
       include: 'scope'
