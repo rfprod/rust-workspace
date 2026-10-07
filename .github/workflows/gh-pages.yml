@@ -28,14 +28,12 @@ jobs:
         uses: ./.github/actions/workspace-cache
 
       - name: Install rust
-        if: ${{ steps.src-changed.outputs.change == 'true' || steps.deps-changed.outputs.change == 'true' }}
         run: |
           sudo apt-get update
           sudo apt-get install libfontconfig1-dev
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
       - name: Install project dependencies
-        if: ${{ steps.src-changed.outputs.change == 'true' || steps.deps-changed.outputs.change == 'true' }}
         run: cargo install --path . --force
 
       - name: Build rustdoc
