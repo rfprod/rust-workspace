@@ -16,7 +16,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test-build-deploy:
+  lint-test-build:
     runs-on: ubuntu-latest
 
     steps:
@@ -96,3 +96,6 @@ jobs:
         run: |
           sudo apt install shellcheck
           shellcheck tools/shell/*.sh tools/shell/utils/*.sh
+
+      - name: Build and deploy rustdoc
+        uses: ./.github/actions/deploy-pages
