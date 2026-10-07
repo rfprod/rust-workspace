@@ -9,10 +9,11 @@ mod calculator;
 mod data_pipeline;
 mod guessing_game;
 mod linfa_train;
+mod load_balancer;
 mod open_weather;
 mod system_information;
 
-type Programs<'a> = [&'a str; 6];
+type Programs<'a> = [&'a str; 7];
 
 /// The entry point of the CLI.
 fn main() {
@@ -27,6 +28,7 @@ fn main() {
         "Calculator",
         "Linfa train",
         "Data pipeline",
+        "Load balancer",
     ];
 
     let program_arg = args.nth(1);
@@ -40,6 +42,7 @@ fn main() {
         3 => calculator::main(),
         4 => linfa_train::main(),
         5 => data_pipeline::main(),
+        6 => load_balancer::main(),
         _ => guessing_game::main(),
     }
 }
