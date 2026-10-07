@@ -9,11 +9,13 @@ runs:
   using: 'composite'
   steps:
     - name: Build rustdoc
+      shell: bash
       run: cargo doc --no-deps --release
       env:
         RUSTDOCFLAGS: "-D warnings"
 
     - name: Prepare documentation files
+      shell: bash
       run: |
         mkdir -p public
         cp -r target/doc/* public/
