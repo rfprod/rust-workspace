@@ -98,4 +98,5 @@ jobs:
           shellcheck tools/shell/*.sh tools/shell/utils/*.sh
 
       - name: Build and deploy rustdoc
+        if: ${{ steps.src-changed.outputs.change == 'true' || steps.deps-changed.outputs.change == 'true' }}
         uses: ./.github/actions/deploy-pages
