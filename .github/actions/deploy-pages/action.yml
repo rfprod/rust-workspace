@@ -1,0 +1,41 @@
+# The action can be referenced in workflows like:
+# - rfprod/rust-workspace/.github/actions/deploy-pages@main
+# ./.github/actions/deploy-pages
+
+name: deploy-pages
+description: Build rustdoc, prepare files, and deploy to GitHub Pages.
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Build rustdoc
+      run: cargo doc --no-deps --release
+      env:
+        RUSTDOCFLAGS: "-D warnings"
+
+    - name: Prepare documentation files
+      run: |
+        mkdir -p public
+        cp -r target/doc/* public/
+        cat > public/index.html << 'EOF'
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta http-equiv="refresh" content="0; url=rust_workspace/index.html">
+        </head>
+        <body>
+            Redirecting to documentation...
+        </body>
+        </html>
+        EOF
+
+    - name: Setup Pages
+      uses: actions/configure-pages@v6
+
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v5
+      with:
+        path: "public"
+
+    - name: Deploy to GitHub Pages
+      uses: actions/deploy-pages@v5
