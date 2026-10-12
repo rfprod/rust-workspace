@@ -25,8 +25,8 @@ runs:
       id: get-variables
       shell: bash
       run: |
-        echo "::set-output name=commitsha::$(echo ${GITHUB_SHA})";
-        echo "::set-output name=rustcversion::$(rustc --version | sed -r s/\\s/-/g | sed -r s/[\(\)]\//g)";
+        echo "name=commitsha::$(echo ${GITHUB_SHA})" >> "$GITHUB_OUTPUT";
+        echo "name=rustcversion::$(rustc --version | sed -r s/\\s/-/g | sed -r s/[\(\)]\//g)" >> "$GITHUB_OUTPUT";
 
     - name: Workspace cache
       uses: actions/cache@v5
