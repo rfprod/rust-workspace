@@ -8,9 +8,6 @@ defaults:
   run:
     shell: bash --noprofile --norc -euo pipefail {0}
 
-env:
-  HISTFILE: ''
-
 concurrency:
   group: ${{ github.ref_name }}.${{ github.sha }}.trunk
   cancel-in-progress: true
@@ -18,6 +15,10 @@ concurrency:
 jobs:
   lint-test-build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
 
     steps:
       - name: Checkout sources
