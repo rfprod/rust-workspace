@@ -12,7 +12,7 @@ runs:
       shell: bash
       run: cargo doc --no-deps --release
       env:
-        RUSTDOCFLAGS: "-D warnings"
+        RUSTDOCFLAGS: '-D warnings'
 
     - name: Prepare documentation files
       shell: bash
@@ -37,7 +37,7 @@ runs:
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v5
       with:
-        path: "public"
+        path: 'public'
 
     - name: Deploy to GitHub Pages
       uses: actions/deploy-pages@v5

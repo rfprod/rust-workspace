@@ -1,0 +1,53 @@
+{
+  "files.encoding": "utf8",
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[sh]": {
+    "editor.defaultFormatter": "timonwong.shellcheck"
+  },
+  "[shellscript]": {
+    "editor.defaultFormatter": "foxundermoon.shell-format"
+  },
+  "[rust]": {
+    "editor.defaultFormatter": "rust-lang.rust-analyzer"
+  },
+  "[rs]": {
+    "editor.defaultFormatter": "rust-lang.rust-analyzer"
+  },
+  "[ignore]": {
+    "editor.defaultFormatter": "foxundermoon.shell-format"
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.rust": "always",
+    "source.organizeImports": "always"
+  },
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true,
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 5000,
+  "files.trimTrailingWhitespace": true,
+  "shellcheck.customArgs": [
+    "-x"
+  ],
+  "shellcheck.enable": true,
+  "shellcheck.enableQuickFix": false,
+  "shellcheck.exclude": [],
+  "shellcheck.executablePath": "shellcheck",
+  "shellcheck.ignorePatterns": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/target/**": true
+  },
+  "shellcheck.run": "onType",
+  "shellcheck.useWorkspaceRootAsCwd": true,
+  "yaml.format.enable": true,
+  "yaml.format.singleQuote": true,
+  "yaml.format.bracketSpacing": true,
+  "yaml.format.proseWrap": "preserve",
+  "yaml.format.printWidth": 140,
+  "yaml.validate": true
+}
